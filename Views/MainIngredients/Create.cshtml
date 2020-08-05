@@ -1,0 +1,52 @@
+﻿@model FoodPlanner.Models.MainIngredients.MainIngredient
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div>
+    <h4>MainIngredient</h4>
+    <hr />
+    <div class="card card-secondary">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div> 
+                        @*<div class="form-group">
+                            <label asp-for="ClassOfFood" class="control-label"></label>
+                            <input asp-for="ClassOfFood" class="form-control" />
+                            <span asp-validation-for="ClassOfFood" class="text-danger"></span>
+                        </div>*@
+                        <div>
+                            <select asp-for="ClassOfFood">
+                                <option  value="Water">Water</option>
+                                <option value="Vitamins">Vitamins</option>
+                                <option value="Fats">Fats</option>
+                                <option value="Fibre">Fibre</option>
+                                <option value="Protein">Protein</option>
+                                <option value="Minerals">Minerals</option>
+                                <option value="Carbohydrates">Carbohydrates</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-default" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <a asp-action="Index">Back to List</a>
+            </div>
+        </div>
+    </div>
+</div>
+

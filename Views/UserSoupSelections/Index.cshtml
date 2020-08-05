@@ -1,0 +1,469 @@
+﻿@model IEnumerable<FoodPlanner.Models.UserFoodSelectionCategory.UserSoupSelection>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var inguserswallow = (List<FoodPlanner.Models.Soups.Soup>)ViewData["userswallow"];
+    int i = 1;
+
+}
+
+
+
+
+    <div class="container container-fluid">
+
+        <div class="card" style="background-color:rgba(255, 255, 255, 0.5)">
+            <!-- /.card-header -->
+
+            <div class="card-body">
+                @if (Model != null)
+                {
+                    <a href="javascript:void(0);" class="btn btn-danger addAbstract waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i> Add Soup</a>
+                }
+                <p>
+                    @*<a asp-action="Create" class="btn btn-primary btn-sm">Add grain dish soup</a>*@
+                </p>
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+
+                        <tr>
+
+                            <th>S/N</th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.UserSoupId)
+                            </th>
+
+
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            int gra = 0;
+                            @foreach (var ing in inguserswallow)
+                            {
+                                if (item.UserSoupId == ing.Id)
+                                {
+                                    break;
+                                }
+                                gra++;
+                            }
+                            <tr>
+
+                                <td>@i</td>
+                                <td>
+                                    @inguserswallow[gra].Name
+                                </td>
+
+
+
+                                <td>
+                                    <a href="javascript:void(0);" class="action-icon btnUpdate" data-user="@item.UserId"
+                                       data-val="@item.Id" data-name="@item.UserSoupId">Edit</a>
+                                    @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a>*@ |
+                                    <a href="javascript:void(0);" class="action-icon btnDetails" data-user="@item.UserId"
+                                       data-val="@item.Id" data-name="@item.UserSoupId">Details</a>
+                                    @*<a asp-action="Details" asp-route-id="@item.Id">Details</a>*@ |
+                                    <a href="javascript:void(0);" class="action-icon btnLockOut" data-val="@item.Id" data-code="@Html.DisplayNameFor(model => model.UserSoupId)">Delete</a>
+                                    @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+                </table>
+
+                <div id="con-close-modal" class="modal fade  " tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none; ">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+
+                            </div>
+                            <div class="modal-body p-4" id="modalBody">
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+
+
+
+<script>
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+        });
+    });
+</script>
+
+
+@*@section scripts{*@
+<script type="text/javascript">
+        $(document).ready(function () {
+            // Add abstract popup
+            $(".addAbstract").click(function (e) {
+                e.preventDefault();
+                debugger;
+                $("#con-close-modal .modal-content").load("@Url.Action("Create","UserSoupSelections")", function (str, status, req) {
+                    req.fail(function () {
+                        Swal.fire(
+                            'Error occured!',
+                            'Error occured while loading add Soup page',
+                            'error'
+                        );
+                    });
+
+                    req.done(function () {
+                        $("#con-close-modal").modal("show");
+                    });
+                });
+            });
+            // Add abstract button
+
+             $("body").on("click", "#btnAddAbstract", function (e) {
+                e.preventDefault();
+                debugger;
+                var doc = {
+                    UserSoupId: $("#UserSoupId").val()
+
+                };
+
+                    var form_data = new FormData();
+
+                for (var key in doc) {
+                    form_data.append(key, doc[key]);
+                }
+
+                //var input = document.querySelector('#document');
+
+                // form_data.append("Abstract", input.files[0], input.files[0].name);
+
+                //    if (input.files.length !== 0) {
+                //    form_data.append("Abstract", input.files[0], input.files[0].name);
+                //    }
+
+                        $.ajax({
+                            url: "@Url.Action("Create", "UserSoupSelections")",
+                            data: form_data,
+                            method: 'post',
+                            contentType: false,
+                            processData: false,
+                        }).fail(function () {
+                                Swal.fire(
+                                    'Error occured!',
+                                    'Unknown error occured while processing request',
+                                    data.message,
+                                    'warning'
+                                ).then(function () {
+                                    location.replace("@Url.Action("Index","UserSoupSelections")");
+                                });
+                            })
+                .done(function (data) {
+                    if (data.status == 0) {
+                        Swal.fire(
+                            'Error occured!',
+                            data.message,
+                            'warning'
+                        ).then(function () {
+                            location.replace("@Url.Action("Index","UserSoupSelections")");
+                        });
+                    } else {
+                        Swal.fire(
+                            'Soup added successfully!',
+                            data.message,
+                            'success'
+                        ).then(function () {
+                            location.replace("@Url.Action("Index","UserSoupSelections")");
+                        });
+                    }
+                })
+            });
+            // End add abstract
+               //start of edit
+              $(".btnUpdate").click(function (e) {
+                  e.preventDefault();
+                  //var documentId = $("#Id").val();
+                  var Id = $(this).data("val");
+                  var User = $(this).data("user");
+                  var lightFood = $(this).data("name");
+
+                  $("#con-close-modal .modal-content").load("@Url.Action("Edit","UserSoupSelections")/" + Id, function (str, status, req) {
+                        req.fail(function () {
+                            Swal.fire(
+                                'Error occured!',
+                                'Error occured while loading edit Soup page',
+                                'error'
+                            );
+                        });
+
+                        req.done(function () {
+                            $("#con-close-modal").modal("show");
+                            $("#Id").val(Id);
+                            $("#UserId").val(User);
+                            $("#UserSoupId").val(lightFood);
+                        });
+                    });
+              });
+
+
+
+              $("body").on("click","#btnEditSubmit",function (e) {
+                    e.preventDefault();
+                  var doc = {
+                    Id: $("#Id").val(),
+                    UserId: $("#UserId").val(),
+                    UserSoupId: $("#UserSoupId").val()
+                  };
+
+
+                 var form_data = new FormData();
+
+                for (var key in doc) {
+                    form_data.append(key, doc[key]);
+                }
+
+                    //var input = document.querySelector('#document');
+
+
+                    //if (input.files.length !== 0) {
+                    //    form_data.append("Abstract", input.files[0], input.files[0].name);
+                    //}
+
+                  @*$.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Edit","UserLightFoodSelections")',
+                        data: { Id: $("#Id").val(), UserId: $("#UserId").val(), UserSoupId: $("#UserSoupId").val() },
+                        dataType: "json",
+                        error: function () {
+                            alert("An error occurred.");
+                        },
+                        success: function (data) {
+
+                        }
+
+                  });*@
+                   $.ajax({
+                        url: "@Url.Action("Edit", "UserSoupSelections")",
+                        data: form_data,
+                        method: 'post',
+                        contentType: false,
+                        processData: false,
+                    }).fail(function () {
+                            Swal.fire(
+                                'Error occured!',
+                                'Unknown error occured while processing request',
+
+                                'warning'
+                            ).then(function () {
+                                location.replace("@Url.Action("Index","UserSoupSelections")");
+                            });
+                    }).done(function (data) {
+                        if (data.status == 0) {
+                            Swal.fire(
+                                'Error occured!',
+                                data.message,
+                                'warning'
+                            ).then(function () {
+                                location.replace("@Url.Action("Index","UserSoupSelections")");
+                            });
+                        } else {
+                            Swal.fire(
+                                //'Updated Light food successfully!',
+                                data.message,
+                                'success'
+                            ).then(function () {
+                                location.replace("@Url.Action("Index","UserSoupSelections")");
+                            });
+                        }
+                    })
+
+
+
+
+
+              });
+            // end of edit
+            // start of details
+             $(".btnDetails").click(function (e) {
+                  e.preventDefault();
+                  //var documentId = $("#Id").val();
+                  var Id = $(this).data("val");
+                  var user = $(this).data("user");
+
+                  var lightFood = $(this).data("name");
+
+                  $("#con-close-modal .modal-content").load("@Url.Action("Details","UserSoupSelections")/" + Id, function (str, status, req) {
+                        req.fail(function () {
+                            Swal.fire(
+                                'Error occured!',
+                                'Error occured while loading edit Soup page',
+                                'error'
+                            );
+                        });
+
+                        req.done(function () {
+                            $("#con-close-modal").modal("show");
+                            $("#Id").val(Id);
+                            $("#UserId").val(user);
+
+                            $("#UserSoupId").val(lightFood);
+                        });
+                    });
+              });
+
+
+
+              //$("body").on("click","#btnEditSubmit",function (e) {
+              //      e.preventDefault();
+              //    var doc = {
+              //      Id: $("#Id").val(),
+              //      UserId: $("#UserId").val(),
+              //      UserSoupId: $("#UserSoupId").val()
+              //    };
+
+
+              //   var form_data = new FormData();
+
+              //  for (var key in doc) {
+              //      form_data.append(key, doc[key]);
+              //  }
+
+              //      //var input = document.querySelector('#document');
+
+
+              //      //if (input.files.length !== 0) {
+              //      //    form_data.append("Abstract", input.files[0], input.files[0].name);
+              //      //}
+
+              //    //@*$.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Edit","UserLightFoodSelections")',
+                        data: { Id: $("#Id").val(), UserId: $("#UserId").val(), UserSoupId: $("#UserSoupId").val() },
+                        dataType: "json",
+                        error: function () {
+                            alert("An error occurred.");
+                        },
+                        success: function (data) {
+
+                        }
+
+                  });*@
+                  // $.ajax({
+                  //  //    url: "@Url.Action("Details", "UserLightFoodSelections")",
+                    //    data: form_data,
+                    //    method: 'post',
+                    //    contentType: false,
+                    //    processData: false,
+                    //}).fail(function () {
+                    //        Swal.fire(
+                    //            'Error occured!',
+                    //            'Unknown error occured while processing request',
+
+                    //            'warning'
+                    //        ).then(function () {
+                    //            location.replace("@Url.Action("Index","UserLightFoodSelections")");
+                    //        });
+                    //}).done(function (data) {
+                    //    if (data.status == 0) {
+                    //        Swal.fire(
+                    //            'Error occured!',
+                    //            data.message,
+                    //            'warning'
+                    //        ).then(function () {
+                    //    //        location.replace("@Url.Action("Index","UserLightFoodSelections")");
+                        //    });
+                        //} else {
+                        //    Swal.fire(
+                        //        //'Updated Light food successfully!',
+                        //        data.message,
+                        //        'success'
+                        //    ).then(function () {
+            //            //        location.replace("@Url.Action("Index","UserLightFoodSelections")");
+            //                });
+            //            }
+            //        })
+
+
+
+
+
+            //  });
+            //// end of details
+
+
+
+             // Delete Paper Submission
+            $(".btnLockOut").click(function (e) {
+                e.preventDefault();
+                var abstractId = $(this).data("val");
+                var abstractTitle = $(this).data("code");
+
+                Swal.fire({
+                    title: 'Continue?',
+                    text: "Are you sure you want to delete this: '" + abstractTitle + "'?",
+                    type: 'warning',
+                    cancel: true,
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then(function (confirm) {
+
+                    if (confirm.value) {
+                        $.post("@Url.Action("Delete","UserSoupSelections")/" + abstractId)
+                        .fail(function () {
+                            Swal.fire(
+                                'Error occured!',
+                                'An error occured while deleting this Soup',
+                                'error'
+                            );
+                        })
+                        .done(function (data) {
+                            if (data.status == 0) {
+                                Swal.fire(
+                                    'Error occured!',
+                                    data.message,
+                                    'warning'
+                                );
+                            } else {
+                                Swal.fire(
+                                    'Soup  Deleted!',
+                                    data.message,
+                                    'success'
+                                ).then(function () {
+                                    location.replace("@Url.Action("Index","UserSoupSelections")");
+                                });
+                            }
+                        });
+
+                    }
+                });
+            });
+        // End delete paper submission
+
+
+        });
+
+</script>
+@*}*@

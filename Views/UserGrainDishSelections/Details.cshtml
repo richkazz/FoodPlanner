@@ -1,0 +1,36 @@
+﻿@model FoodPlanner.Models.UserFoodSelectionCategory.UserGrainDishSelection
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+    var inguserswallow = (List<FoodPlanner.Models.GrainDishes.GrainDish>)ViewData["userswallow"];
+    int indUserGrainDishSelection = (int)ViewData["indUserGrainDishSelection"];
+}
+
+<div class="modal-header">
+
+
+
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+</div>
+<div class="modal-body p-4" id="modalBody">
+    <div>
+        <h4>Grain Dish</h4>
+        <hr />
+
+        <dl class="row">
+            @Html.HiddenFor(x => x.Id)
+            @Html.HiddenFor(x => x.UserId)
+            <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.UserGrainDishId)</dt>
+            <dd class="col-sm-8"> @inguserswallow[indUserGrainDishSelection].Name</dd>
+
+
+
+        </dl>
+    </div>
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+</div>

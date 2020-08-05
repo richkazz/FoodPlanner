@@ -1,0 +1,40 @@
+﻿@model FoodPlanner.Models.LightFood.LightFoodNutrient
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var lightfoodmainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["lightfoodmainIngrdient"];
+    var inglightfood = (List<FoodPlanner.Models.LightFood.LightFood>)ViewData["lightfood"];
+    int indFoodNutrient = (int)ViewData["indFoodNutrient"];
+    int indFood = (int)ViewData["indFood"];
+}
+
+
+<div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card card-default">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <h3 class="text-danger">Are you sure you want to delete this?</h3>
+                    <dl class="row">
+                        <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.LightFoodName)</dt>
+                        <dd class="col-sm-8"> @inglightfood[indFood].Name</dd>
+                        <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.LightFoodMainIngredient)</dt>
+                        <dd class="col-sm-8">@lightfoodmainIngrdient[indFoodNutrient].Name</dd>
+
+                    </dl>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="submit" value="Delete" class="btn btn-default" /> |
+                        <a asp-action="Index">Back to List</a>
+                    </form>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </section>
+</div>

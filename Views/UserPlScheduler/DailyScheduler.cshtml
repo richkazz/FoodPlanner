@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewData["Title"] = "DailyScheduler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+    <div class="card">
+
+        <!-- /.card-header -->
+        <div class="card-body">
+
+
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>BrakeFast</th>
+                        <th>Lunch</th>
+                        <th>Dinner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@ViewBag.dayofweek</td>
+                        <td>@ViewBag.Monday0</td>
+                        <td>@ViewBag.Monday1</td>
+                        <td>@ViewBag.Monday2</td>
+                    </tr>
+
+
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+
+
+<!-- /.col -->
+@*</div>
+        </div>    /.row
+    </section>*@
+<!-- /.content -->
+
+
+
+<script>
+    $(function () {
+        $("#example1").DataTable();
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+        });
+    });
+</script>
+

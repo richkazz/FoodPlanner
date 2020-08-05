@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<AppUser>
-
+@{
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+}
 <h1 class="bg-info text-white">All Users</h1>
 <a asp-action="Create" class="btn btn-secondary">Create a User</a>
 

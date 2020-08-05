@@ -1,0 +1,56 @@
+﻿@model FoodPlanner.Models.MainIngredients.MainIngredient
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div>
+
+
+    <h4>MainIngredient</h4>
+
+    <div class="card card-secondary">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <select name="classification" asp-for="ClassOfFood">
+                                <option value="Water">Water</option>
+                                <option value="Vitamins">Vitamins</option>
+                                <option value="Fats">Fats</option>
+                                <option value="Fibre">Fibre</option>
+                                <option value="Protein">Protein</option>
+                                <option value="Minerals">Minerals</option>
+                                <option value="Carbohydrates">Carbohydrates</option>
+                            </select>
+                        </div>
+                        <div class="row" style="margin-top:20px;">
+                            <div class="col-md-12">
+
+                                <div class="form-group">
+                                    <input type="submit" value="Update" class="btn btn-default" />
+                                    <span><a asp-action="Index">Back to List</a></span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+

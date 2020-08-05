@@ -1,0 +1,79 @@
+﻿@model IEnumerable<FoodPlanner.Models.ContactUs.Contactus>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 1;
+}
+
+<div  style="background: url('@Url.Content("~/Pic/plantain-1.jpg")'); background-size:cover;">
+
+    <div class="card">
+
+        <!-- /.card-header -->
+        <div class="card-body">
+           
+
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>S/N</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Body</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int a = 0; a < ViewBag.Monday0.Count; a++)
+                    {
+                        List<string> con = new List<string>();
+                        var cont = (ViewBag.Monday0[a].Split(new char[] { '|' }));
+                        con.Add(cont[0]);
+                        con.Add(cont[1]);
+                        con.Add(cont[2]);
+                        
+                        //ViewBag.Monday0 = con[0]; ViewBag.Monday1 = con[1]; ViewBag.Monday2 = con[2];
+                        <tr>
+                            <td>@i</td>
+                            <td>@con[0]</td>
+                            <td>@con[1]</td>
+                            <td>@con[2]</td>
+                        </tr>
+                        i++;
+                    
+                     }
+
+
+
+
+                    </tbody>
+                </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+
+</div>
+<!-- /.col -->
+@*</div>
+        </div>    /.row
+    </section>*@
+<!-- /.content -->
+
+
+
+<script>
+    $(function () {
+        $("#example1").DataTable();
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+        });
+    });
+</script>
+

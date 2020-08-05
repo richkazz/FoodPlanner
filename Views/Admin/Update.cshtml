@@ -1,5 +1,7 @@
 ﻿@model AppUser
-
+@{
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+}
 <h1 class="bg-info text-white">Update User</h1>
 <a asp-action="Index" class="btn btn-secondary">Back</a>
 <div asp-validation-summary="All" class="text-danger"></div>
@@ -18,18 +20,18 @@
         <input name="password" class="form-control" />
     </div>
     @*<div class="form-group">
-        <label asp-for="Age"></label>
-        <input asp-for="Age" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Country"></label>
-        <select asp-for="Country" class="form-control" asp-items="@new SelectList(Enum.GetNames(typeof(Country)))">
-            <option selected disabled value="Select">Select Country</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label asp-for="Salary"></label>
-        <input asp-for="Salary" class="form-control" />
-    </div>*@
+            <label asp-for="Age"></label>
+            <input asp-for="Age" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Country"></label>
+            <select asp-for="Country" class="form-control" asp-items="@new SelectList(Enum.GetNames(typeof(Country)))">
+                <option selected disabled value="Select">Select Country</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Salary"></label>
+            <input asp-for="Salary" class="form-control" />
+        </div>*@
     <button type="submit" class="btn btn-primary">Save</button>
 </form>

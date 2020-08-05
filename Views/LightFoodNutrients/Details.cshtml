@@ -1,0 +1,39 @@
+﻿@model FoodPlanner.Models.LightFood.LightFoodNutrient
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var lightfoodmainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["lightfoodmainIngrdient"];
+    var inglightfood = (List<FoodPlanner.Models.LightFood.LightFood>)ViewData["lightfood"];
+    int indFoodNutrient = (int)ViewData["indFoodNutrient"];
+    int indFood = (int)ViewData["indFood"];
+}
+
+
+<div class="modal-header">
+
+    <h4 class="modal-title">Edit Document</h4>
+
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+</div>
+<div class="modal-body p-4" id="modalBody">
+
+    <dl class="row" id="UserLightFoodId">
+        @Html.HiddenFor(x => x.Id)
+
+        <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.LightFoodName)</dt>
+        <dd class="col-sm-8"> @inglightfood[indFood].Name</dd>
+        <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.LightFoodMainIngredient)</dt>
+        <dd class="col-sm-8">@lightfoodmainIngrdient[indFoodNutrient].Name</dd>
+
+    </dl>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+</div>

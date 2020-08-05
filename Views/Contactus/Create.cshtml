@@ -1,0 +1,56 @@
+﻿@model FoodPlanner.Models.ContactUs.Contactus
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+}
+
+
+<style>
+    .card-transparent {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+</style>
+
+<div class="hold-transition login-page" style="background: url('@Url.Content("~/Pic/plantain-1.jpg")'); background-size:cover;">
+    <div class="login-box">
+        <div class="login-logo">
+            <a asp-controller="Account" asp-action="Login"><b>Food</b>Scheduler</a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="card card-transparent">
+            <div class="card-body login-card-body card-transparent">
+                
+
+                    <!-- we are adding the .class so bootstrap.js collapse plugin detects it -->
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <form method="post">
+                        <div class="form-group">
+                            <label asp-for="Name"></label>
+                            <input asp-for="Name" type="text" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email"></label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Body"></label>
+                            <textarea asp-for="Body" class="form-control" style="height:150px"></textarea>
+
+                        </div>
+
+
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </form>
+
+
+                    <!-- /.card-body -->
+
+               
+
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+</div>

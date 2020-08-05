@@ -1,0 +1,105 @@
+﻿@model IEnumerable<FoodPlanner.Models.GrainDishNutrients.GrainDishNutrient>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var inggraindish = (List<FoodPlanner.Models.GrainDishes.GrainDish>)ViewData["graindish"];
+    var karomainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["karomainIngredients"];
+    int i = 1;
+}
+
+
+
+    <div class="container container-fluid">
+
+        <div class="card" style="background-color:rgba(255, 255, 255, 0.5)">
+            <!-- /.card-header -->
+
+            <div class="card-body">
+                <p>
+                    <a asp-action="Create" class="btn btn-primary btn-sm">Add grain dish nutrient</a>
+                </p>
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+
+                        <tr>
+
+                            <th>S/N</th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.GrainName)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.KaroMainIngredientsId)
+                            </th>
+                            <th>@Html.DisplayNameFor(model => model.SoupRequired)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            int inda = 0;
+                            @foreach (var ing in karomainIngrdient)
+                            {
+                                if (item.KaroMainIngredientsId == ing.Id)
+                                {
+                                    break;
+                                }
+                                inda++;
+                            }
+                            int gra = 0;
+                            @foreach (var ing in inggraindish)
+                            {
+                                if (item.GrainName == ing.Id)
+                                {
+                                    break;
+                                }
+                                gra++;
+                            }
+                            <tr>
+
+                                <td>@i</td>
+                                <td>
+                                    @inggraindish[gra].Name
+                                </td>
+                                <td>
+
+                                    @karomainIngrdient[inda].Name
+
+                                </td>
+                                <td>@item.SoupRequired</td>
+
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+
+
+
+<script>
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+        });
+    });</script>

@@ -1,0 +1,43 @@
+﻿@model FoodPlanner.Models.UserFoodSelectionCategory.UserLightFoodSelection
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+    var inguserlightfood = (List<FoodPlanner.Models.LightFood.LightFood>)ViewData["userlightfood"];
+}
+
+<div class="modal-header">
+
+    <h4 class="modal-title">Edit Light Food</h4>
+
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+</div>
+<div class="modal-body p-4" id="modalBody">
+    <div class="row">
+
+        @Html.HiddenFor(x => x.Id)
+        @Html.HiddenFor(x => x.UserId)
+
+        <div class="col-md-12">
+
+            <div class="form-group mb-3">
+                <label>Light Food</label>
+                <select name="grainselect" class="form-control select2bs4" style="width: 100%;" id="UserLightFoodId">
+
+                    @foreach (var userlightfoodselect in inguserlightfood)
+                    {
+                        <option value="@userlightfoodselect.Id">@userlightfoodselect.Name</option>
+
+                    }
+                </select>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+    <button type="button" id="btnEditSubmit" class="btn btn-info waves-effect waves-light">Update</button>
+</div>
+

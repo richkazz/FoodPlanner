@@ -1,0 +1,34 @@
+﻿@model FoodPlanner.Models.GrainDishNutrients.GrainDishNutrient
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var inggraindish = (List<FoodPlanner.Models.GrainDishes.GrainDish>)ViewData["graindish"];
+    var karomainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["karomainIngredients"];
+    int indGrainDish = (int)ViewData["indGrainDish"];
+    int indGrain = (int)ViewData["indGrain"];
+}
+
+<div >
+    <div class="container-fluid">
+        <div class="card card-default">
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.GrainName)</dt>
+                    <dd class="col-sm-8"> @inggraindish[indGrain].Name</dd>
+                    <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.KaroMainIngredientsId)</dt>
+                    <dd class="col-sm-8">@karomainIngrdient[indGrainDish].Name</dd>
+
+                </dl>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+</div>

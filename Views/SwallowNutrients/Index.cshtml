@@ -1,0 +1,103 @@
+﻿@model IEnumerable<FoodPlanner.Models.Swallows.SwallowNutrient>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var ingswallow = (List<FoodPlanner.Models.Swallows.Swallow>)ViewData["swallows"];
+    var mainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["mainIngredients"];
+    int i = 1;
+}
+    <div class="container container-fluid">
+
+        <div class="card" style="background-color:rgba(255, 255, 255, 0.5)">
+            <!-- /.card-header -->
+            <div class="card-body">
+
+                <p>
+                    <a asp-action="Create" class="btn btn-primary btn-sm">Add swallow nutrient</a>
+                </p>
+
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+
+                        <tr>
+
+                            <th>S/N</th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.SwallowName)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.MainIngredientsId)
+                            </th>
+
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            int ind = 0;
+                            @foreach (var ing in mainIngrdient)
+                            {
+                                if (item.MainIngredientsId == ing.Id)
+                                {
+                                    break;
+                                }
+                                ind++;
+                            }
+                            int swa = 0;
+                            @foreach (var ing in ingswallow)
+                            {
+                                if (item.SwallowName == ing.Id)
+                                {
+                                    break;
+                                }
+                                swa++;
+                            }
+
+                            <tr>
+
+                                <td>@i</td>
+                                <td>
+                                    @ingswallow[swa].Name
+                                </td>
+                                <td>
+
+                                    @mainIngrdient[ind].Name
+
+                                </td>
+
+
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>   <!-- /.card-body -->
+
+    </div>
+
+
+<script>
+            $(function () {
+                $("#example1").DataTable({
+                    "responsive": true,
+                    "autoWidth": false,
+                });
+                $('#example2').DataTable({
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": false,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                });
+            });</script>

@@ -4,21 +4,35 @@ using Microsoft.AspNetCore.Identity;
 using Identity.Models;
 using System.Threading.Tasks;
 using System.Security.Claims;
-using Identity.Email;
+
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+
+using FoodPlanner.Email;
+using FoodPlanner.Interfaces;
+using System.Linq;
 
 namespace Identity.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private readonly AppIdentityDbContext _context;
         private UserManager<AppUser> userManager;
         private SignInManager<AppUser> signInManager;
+        private IEmailSender _emailSender;
+        private IUserLoginStatus __userLoginStatus;
+        private RoleManager<IdentityRole> roleManager;
 
-        public AccountController(UserManager<AppUser> userMgr, SignInManager<AppUser> signinMgr)
+        public AccountController(AppIdentityDbContext context, IEmailSender emailSender, IUserLoginStatus userLoginStatus, UserManager<AppUser> userMgr, SignInManager<AppUser> signinMgr, RoleManager<IdentityRole> roleMgr)
         {
+
+            _context = context;
             userManager = userMgr;
             signInManager = signinMgr;
+            roleManager = roleMgr;
+            _emailSender = emailSender;
+            __userLoginStatus = userLoginStatus;
         }
 
         public IActionResult Index()
@@ -37,18 +51,38 @@ namespace Identity.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(Login login)
+        public async Task<IActionResult> Login(RoleModification model,Login login,User statuslog )
         {
-            if (ModelState.IsValid)
+
+            if (login.Email != null)
             {
                 AppUser appUser = await userManager.FindByEmailAsync(login.Email);
                 if (appUser != null)
                 {
                     await signInManager.SignOutAsync();
-                    Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, login.Password, false, true);
-                    if (result.Succeeded)
-                        return Redirect(login.ReturnUrl ?? "/");
+                    Microsoft.AspNetCore.Identity.SignInResult result1 = await signInManager.PasswordSignInAsync(appUser, login.Password, false, true);
+                    if (result1.Succeeded)
+                    {
+                        List<string> role = new List<string>();
+                        role.Add(model.RoleName);
+                        foreach (string userId in model.DeleteIds ?? new string[] { })
+                        {
+                            AppUser user = await userManager.FindByIdAsync(userId);
+                            if (user != null)
+                            {
+                              var result2 = await userManager.FindByNameAsync(model.RoleName);
+                                
+                            }
+                        }
 
+
+                        var updateLoginStatus = await __userLoginStatus.UpdatStaus(appUser.Id, true);
+
+                        TempData["UserId"] = appUser.Id;
+
+
+                        return Redirect(login.ReturnUrl ?? "/");
+                    }
                     /*bool emailStatus = await userManager.IsEmailConfirmedAsync(appUser);
                     if (emailStatus == false)
                     {
@@ -58,7 +92,7 @@ namespace Identity.Controllers
                     /*if (result.IsLockedOut)
                         ModelState.AddModelError("", "Your account is locked out. Kindly wait for 10 minutes and try again");*/
 
-                    if (result.RequiresTwoFactor)
+                    if (result1.RequiresTwoFactor)
                     {
                         return RedirectToAction("LoginTwoStep", new { appUser.Email, login.ReturnUrl });
                     }
@@ -75,8 +109,8 @@ namespace Identity.Controllers
 
             var token = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
 
-            EmailHelper emailHelper = new EmailHelper();
-            bool emailResponse = emailHelper.SendEmailTwoFactorCode(user.Email, token);
+            EmailConfiguration emailHelper = new EmailConfiguration();
+            //bool emailResponse = emailHelper.SendEmailTwoFactorCode(user.Email, token);
 
             return View();
         }
@@ -105,7 +139,11 @@ namespace Identity.Controllers
 
         public async Task<IActionResult> Logout()
         {
+            var userId = TempData["UserId"].ToString();
+            var updateLoginStatus = await __userLoginStatus.UpdatStaus(userId, false);
+
             await signInManager.SignOutAsync();
+                        
             return RedirectToAction("Index", "Home");
         }
 
@@ -175,10 +213,14 @@ namespace Identity.Controllers
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var link = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme);
 
-            EmailHelper emailHelper = new EmailHelper();
-            bool emailResponse = emailHelper.SendEmailPasswordReset(user.Email, link);
+            EmailConfiguration emailHelper = new EmailConfiguration();
+         
+            //bool emailResponse = emailHelper.SendEmailPasswordReset(user.Email, link);
+            var msg = new Message(new string[] { user.Email }, "Password Reset", link);
+            _emailSender.SendEmail(msg);
+            //bool emailResponse = emailHelper.SendEmail(msg);
 
-            if (emailResponse)
+            if (ModelState.IsValid)
                 return RedirectToAction("ForgotPasswordConfirmation");
             else
             {

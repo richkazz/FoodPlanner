@@ -1,0 +1,132 @@
+﻿@model IEnumerable<FoodPlanner.Models.FAQ.FAQs>
+
+@{
+    ViewData["Title"] = "UserIndex";
+    //Layout = "~/Views/Shared/_ModalLayout.cshtml";
+}
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 3 | General UI</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 4 -->
+    <link href="~/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link href="~/dist/css/adminlte.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <style>
+        .card-transparent {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .color-palette {
+            height: 35px;
+            line-height: 35px;
+            text-align: right;
+            padding-right: .75rem;
+        }
+
+            .color-palette.disabled {
+                text-align: center;
+                padding-right: 0;
+                display: block;
+            }
+
+        .backgroundbody {
+            background-image: url('pic/plantain-1.jpg');
+            background-size: cover;
+        }
+
+        .color-palette-set {
+            margin-bottom: 15px;
+        }
+
+        .color-palette span {
+            display: none;
+            font-size: 12px;
+        }
+
+        .color-palette:hover span {
+            display: block;
+        }
+
+        .color-palette.disabled span {
+            display: block;
+            text-align: left;
+            padding-left: .75rem;
+        }
+
+        .color-palette-box h4 {
+            position: absolute;
+            left: 1.25rem;
+            margin-top: .75rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            display: block;
+            z-index: 7;
+        }
+    </style>
+</head>
+
+<body  style="background: url('@Url.Content("~/Pic/plantain-1.jpg")'); background-size:cover;">
+    <div class="content">
+        <div class="container-fluid container">
+            <div class="register-logo">
+                <a href="../../index2.html"><b>Food</b>Scheduler</a>
+            </div>
+
+            <div class="card card-transparent"style=" margin:auto;">
+                <div>
+                    <div class="card-header">
+                        <h3 class="card-title text-red" style="float:left;">FAQ   </h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body " >
+                        <div id="accordion">
+                            @foreach (var item in Model)
+                            {
+                                <!-- we are adding the .class so bootstrap.js collapse plugin detects it -->
+                                if (item.Status != false)
+                                {
+                                    <div class="card card-primary">
+                                        <div class="card-header ">
+
+                                            <div >
+                                                <h4 class="card-title" style="overflow-y:auto;">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse_@item.Id.ToString()">
+                                                        @Html.DisplayFor(modelItem => item.Question)
+                                                    </a>
+                                                </h4>
+                                            </div>
+
+
+
+
+                                        </div>
+                                        <div id="collapse_@item.Id.ToString()" class="panel-collapse collapse in">
+                                            <div class="card-body">
+                                                @Html.DisplayFor(modelItem => item.Answer)
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            }
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+
+                <!-- /.form-box -->
+            </div><!-- /.card -->
+        </div>
+
+
+    </div>
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/dist/js/adminlte.min.js"></script>
+    <script src="~/dist/js/demo.js"></script>
+</body>

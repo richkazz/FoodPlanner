@@ -1,9 +1,179 @@
 ﻿@model string
+@{
 
-<h1 class="bg-info text-white">Index</h1>
-@Model
 
-@if (User?.Identity?.IsAuthenticated ?? false)
-{
-    <a asp-controller="Account" asp-action="Logout" class="btn btn-danger">Logout</a>
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<body >
+    <div >
+        <h1 class="bg-info text-white">FOOD SCHEDULER</h1>
+        @Model
+        <!-- Donut chart -->
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>@ViewBag.totalUser</h3>
+
+                        <p>Total User</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-person-add"></i>
+                    </div>
+                    <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>@ViewBag.totalSignIn</h3>
+
+                        <p>Active User</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-person-add"></i>
+                    </div>
+                    <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@ViewBag.totalSignOut</h3>
+
+                        <p>In Active User</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-person-add"></i>
+                    </div>
+                    <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>1</h3>
+
+                        <p>Page Viewed</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-pie-graph"></i>
+                    </div>
+                    <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+        </div>
+
+
+
+
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-primary card-outline bg-transparent">
+                    <div class="card-header">
+                        <div cl>
+                            <h3 class="card-title">
+                                <i class="far fa-chart-bar"></i>
+                                Donut Chart
+                            </h3>
+                        </div>
+
+                    </div>
+                    <div class="card-body">
+                        <div id="donut-chart" style="height: 300px;"></div>
+                    </div>
+                    <!-- /.card-body-->
+                </div>
+            </div>
+        </div>
+
+        @*<img src="~/Pic/FAMILY EATING2.jpg" width="80%" height="40%" />*@
+    </div>
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/dist/js/adminlte.min.js"></script>
+    <script src="~/dist/js/demo.js"></script>
+    <script src="~/plugins/flot/jquery.flot.js"></script>
+    <script src="~/plugins/flot-old/jquery.flot.resize.min.js"></script>
+    <script src="~/plugins/flot-old/jquery.flot.pie.min.js"></script>
+
+    <script>
+        $(function () {
+            /*
+             * Flot Interactive Chart
+             * -----------------------
+             */
+            // We use an inline data source in the example, usually data would
+            // be fetched from a server
+            
+            /*
+             * DONUT CHART
+             * -----------
+             */
+
+            var donutData = [
+                {
+                    label: 'Active Users',
+                    data: @ViewBag.totalSignIn,
+                    color: '#3c8dbc'
+                },
+                {
+                    label: 'InActive users',
+                    data: @ViewBag.totalSignOut,
+                    color: '#0073b7'
+                }
+                //{
+                //    label: 'Series4',
+                //    data: 50,
+                //    color: '#00c0ef'
+                //}
+            ]
+            $.plot('#donut-chart', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            })
+            /*
+             * END DONUT CHART
+             */
+
+        })
+
+        /*
+         * Custom Label formatter
+         * ----------------------
+         */
+        function labelFormatter(label, series) {
+            return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
+                + label
+                + '<br>'
+                + Math.round(series.percent) + '%</div>'
+        }
+    </script>
+</body>

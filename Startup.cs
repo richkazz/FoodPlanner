@@ -10,21 +10,41 @@ using Identity.IdentityPolicy;
 using System;
 using Microsoft.AspNetCore.Authorization;
 using Identity.CustomPolicy;
+using FoodPlanner.Interface;
+using FoodPlanner.Services;
+using FoodPlanner.Interfaces;
+using FoodPlanner.Email;
 
 namespace Identity
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration) => Configuration = configuration;
         public IConfiguration Configuration { get; }
+
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            this.Configuration = builder.Build();
+        }
+
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IPasswordValidator<AppUser>, CustomPasswordPolicy>();
             services.AddTransient<IUserValidator<AppUser>, CustomUsernameEmailPolicy>();
+            
+
             services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
             services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
-
+            services.AddScoped<ISchedule, ScheduleService>();
+            services.AddScoped<IUserLoginStatus, UserLoginStatusService>();
+            services.AddScoped<IContactUs, ContactUsService>();
+            services.AddScoped<IOperation, OperationService>();
+            services.AddScoped<IEmailSender, EmailSender>();
             /*services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = ".AspNetCore.Identity.Application";
@@ -85,7 +105,14 @@ namespace Identity
                     opts.ClientSecret = "babQzWPLGwfOQVi0EYR-7Fbb";
                     opts.SignInScheme = IdentityConstants.ExternalScheme;
                 });
+
             services.AddControllersWithViews();
+
+            var emailConfig = Configuration.GetSection("EmailConfiguration");
+            services.Configure<EmailConfiguration>(emailConfig);
+            var emailConfigurationSection = emailConfig.Get<EmailConfiguration>();
+            //.Get<FoodPlanner.Email.EmailConfiguration>();
+            // services.AddSingleton(emailConfig);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

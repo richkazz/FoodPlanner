@@ -1,0 +1,164 @@
+﻿@model FoodPlanner.Models.GrainDishNutrients.GrainDishNutrient
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var inggraindish = (List<FoodPlanner.Models.GrainDishes.GrainDish>)ViewData["graindish"];
+    var karomainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["karomainIngredients"];
+}
+
+<div >
+    <h2>Create</h2>
+
+    <h4>GrainDishNutrient</h4>
+    <hr />
+
+    <div class="container-fluid">
+        <div class="card card-default">
+            <form asp-action="Create">
+                <div class="card-header">
+                    <h3 class="card-title"></h3>
+
+
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>Graindish</label>
+                                <select name="grainselect" class="form-control select2bs4" style="width: 100%;">
+
+                                    @foreach (var grainselect in inggraindish)
+                                    {
+                                        <option value="@grainselect.Id">@grainselect.Name</option>
+
+                                    }
+                                </select>
+                            </div>
+                            <!-- /.form-group -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>Mainingradient</label>
+                                <select name="karoingredient" class="form-control select2bs4" style="width: 100%;">
+
+
+                                    @foreach (var karoingredient in karomainIngrdient)
+                                    {
+                                        <option value="@karoingredient.Id">@karoingredient.Name</option>
+
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>Requires Soup</label>
+                                <select name="soupRequired" class="form-control select2bs4" style="width: 100%;">
+
+                                    <option value="True">True</option>
+                                    <option value="False">False</option>
+
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Create" class="btn btn-default" />
+                            </div>
+                        </div>
+                        <!-- /.col -->
+
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.card-body -->
+            </form>
+        </div>
+
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+$(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2()
+
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+
+    //Datemask dd/mm/yyyy
+    $('#datemask').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
+    //Datemask2 mm/dd/yyyy
+    $('#datemask2').inputmask('mm/dd/yyyy', { 'placeholder': 'mm/dd/yyyy' })
+    //Money Euro
+    $('[data-mask]').inputmask()
+
+    //Date range picker
+    $('#reservationdate').datetimepicker({
+        format: 'L'
+    });
+    //Date range picker
+    $('#reservation').daterangepicker()
+    //Date range picker with time picker
+    $('#reservationtime').daterangepicker({
+      timePicker: true,
+      timePickerIncrement: 30,
+      locale: {
+        format: 'MM/DD/YYYY hh:mm A'
+      }
+    })
+    //Date range as a button
+    $('#daterange-btn').daterangepicker(
+      {
+        ranges   : {
+          'Today'       : [moment(), moment()],
+          'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+          'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+          'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+          'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        startDate: moment().subtract(29, 'days'),
+        endDate  : moment()
+      },
+      function (start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
+      }
+    )
+
+    //Timepicker
+    $('#timepicker').datetimepicker({
+      format: 'LT'
+    })
+
+    //Bootstrap Duallistbox
+    $('.duallistbox').bootstrapDualListbox()
+
+    //Colorpicker
+    $('.my-colorpicker1').colorpicker()
+    //color picker with addon
+    $('.my-colorpicker2').colorpicker()
+
+    $('.my-colorpicker2').on('colorpickerChange', function(event) {
+      $('.my-colorpicker2 .fa-square').css('color', event.color.toString());
+    });
+
+    $("input[data-bootstrap-switch]").each(function(){
+      $(this).bootstrapSwitch('state', $(this).prop('checked'));
+    });
+
+  })</script>
+
+

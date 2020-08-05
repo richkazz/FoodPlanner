@@ -1,0 +1,36 @@
+﻿@model FoodPlanner.Models.UserFoodSelectionCategory.UserSwallowSelection
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+    var inguserswallow = (List<FoodPlanner.Models.Swallows.Swallow>)ViewData["userswallow"];
+    int indUserSwallowSelection = (int)ViewData["indUserSwallowSelection"];
+
+}
+
+
+<div >
+    <div class="container-fluid">
+        <div class="card card-default">
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <h3 class="text-danger">Are you sure you want to delete this?</h3>
+
+                <dl class="row">
+                    <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.UserSwallowId)</dt>
+                    <dd class="col-sm-8"> @inguserswallow[indUserSwallowSelection].Name</dd>
+
+
+                </dl>
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" id="kazz" value="Delete" class="btn btn-default" /> |
+                    <a asp-action="Index">Back to List</a>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+</div>

@@ -1,0 +1,36 @@
+﻿@model FoodPlanner.Models.UserFoodSelectionCategory.UserLightFoodSelection
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+    var inguserlightfood = (List<FoodPlanner.Models.LightFood.LightFood>)ViewData["userlightfood"];
+    int indUserLightFoodSelection = (int)ViewData["indUserLightFoodSelection"];
+
+}
+
+
+<div >
+    <div class="container-fluid">
+        <div class="card card-default">
+
+            <!-- /.card-header -->
+            <div class="card-body">
+                <h3 class="text-danger">Are you sure you want to delete this?</h3>
+
+                <dl class="row">
+                    <dt class="col-sm-4"> @Html.DisplayNameFor(model => model.UserLightFoodId)</dt>
+                    <dd class="col-sm-8"> @inguserlightfood[indUserLightFoodSelection].Name</dd>
+
+
+                </dl>
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="submit" id="kazz" value="Delete" class="btn btn-default" /> |
+                    <a asp-action="Index">Back to List</a>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+</div>

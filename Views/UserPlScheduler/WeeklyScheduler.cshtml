@@ -1,0 +1,99 @@
+﻿
+@{
+    ViewData["Title"] = "WeeklyScheduler";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-wrapper">
+
+    <div class="card">
+
+        <!-- /.card-header -->
+        <div class="card-body">
+            <p>
+                <a asp-action="DailyScheduler" class="btn btn-primary btn-sm">Add grain dish</a>
+            </p>
+
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>BrakeFast</th>
+                        <th>Lunch</th>
+                        <th>Dinner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Monday</td>
+                        <td>@ViewBag.Monday0</td>
+                        <td>@ViewBag.Monday1</td>
+                        <td>@ViewBag.Monday2</td>
+                    </tr>
+                    <tr>
+                        <td>Tuesday</td>
+                        <td>@ViewBag.Tuesday0</td>
+                        <td>@ViewBag.Tuesday1</td>
+                        <td>@ViewBag.Tuesday2</td>
+                    </tr>
+                    <tr>
+                        <td>Wednesday</td>
+                        <td>@ViewBag.Wednesday0</td>
+                        <td>@ViewBag.Wednesday1</td>
+                        <td>@ViewBag.Wednesday2</td>
+                    </tr>
+                    <tr>
+                        <td>Thursday</td>
+                        <td>@ViewBag.Thursday0</td>
+                        <td>@ViewBag.Thursday1</td>
+                        <td>@ViewBag.Thursday2</td>
+                    </tr>
+                    <tr>
+                        <td>Friday</td>
+                        <td>@ViewBag.Friday0</td>
+                        <td>@ViewBag.Friday1</td>
+                        <td>@ViewBag.Friday2</td>
+                    </tr>
+                    <tr>
+                        <td>Saturday</td>
+                        <td>@ViewBag.Saturday0</td>
+                        <td>@ViewBag.Saturday1</td>
+                        <td>@ViewBag.Saturday2</td>
+                    </tr>
+                    <tr>
+                        <td>Sunday</td>
+                        <td>@ViewBag.Sunday0</td>
+                        <td>@ViewBag.Sunday1</td>
+                        <td>@ViewBag.Sunday2</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+
+</div>
+<!-- /.col -->
+@*</div>
+        </div>    /.row
+    </section>*@
+<!-- /.content -->
+
+
+
+<script>
+    $(function () {
+        $("#example1").DataTable();
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": false,
+            "info": true,
+            "autoWidth": false,
+        });
+    });
+</script>
+

@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+    var inguserswallow = (List<FoodPlanner.Models.GrainDishes.GrainDish>)ViewData["userswallow"];
+}
+
+<div class="modal-header">
+
+    <h4 class="modal-title">Create</h4>
+
+
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+</div>
+<div class="modal-body p-4" id="modalBody">
+    <div class="row">
+
+
+        <div class="col-md-12">
+
+            <div class="form-group mb-3">
+                <label>GrainDish</label>
+                <select name="grainselect" class="form-control select2bs4" style="width: 100%;" id="UserGrainDishId">
+
+                    @foreach (var userGrainDisheselect in inguserswallow)
+                    {
+                        <option value="@userGrainDisheselect.Id">@userGrainDisheselect.Name</option>
+
+                    }
+                </select>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+    <button type="button" id="btnAddAbstract" class="btn btn-info waves-effect waves-light">Create</button>
+</div>
+

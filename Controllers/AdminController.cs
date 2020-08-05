@@ -3,12 +3,14 @@ using Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System;
-using Identity.Email;
+using FoodPlanner.Interfaces;
+using FoodPlanner.Email;
 
 namespace Identity.Controllers
 {
     public class AdminController : Controller
     {
+        private IEmailSender _emailSender;
         private UserManager<AppUser> userManager;
         private IPasswordHasher<AppUser> passwordHasher;
         private IPasswordValidator<AppUser> passwordValidator;
@@ -20,12 +22,13 @@ namespace Identity.Controllers
             passwordHasher = passwordHash;
         }*/
 
-        public AdminController(UserManager<AppUser> usrMgr, IPasswordHasher<AppUser> passwordHash, IPasswordValidator<AppUser> passwordVal, IUserValidator<AppUser> userValid)
+        public AdminController(UserManager<AppUser> usrMgr, IEmailSender emailSender, IPasswordHasher<AppUser> passwordHash, IPasswordValidator<AppUser> passwordVal, IUserValidator<AppUser> userValid)
         {
             userManager = usrMgr;
             passwordHasher = passwordHash;
             passwordValidator = passwordVal;
             userValidator = userValid;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -42,7 +45,7 @@ namespace Identity.Controllers
             {
                 AppUser appUser = new AppUser
                 {
-                    UserName = user.Name,
+                    UserName = user.UserName,
                     Email = user.Email
                 };
 
@@ -51,10 +54,12 @@ namespace Identity.Controllers
                 {
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(appUser);
                     var confirmationLink = Url.Action("ConfirmEmail", "Email", new { token, email = user.Email }, Request.Scheme);
-                    EmailHelper emailHelper = new EmailHelper();
-                    bool emailResponse = emailHelper.SendEmail(user.Email, confirmationLink);
-
-                    if (emailResponse)
+                    EmailConfiguration emailHelper = new EmailConfiguration();
+                    //bool emailResponse = emailHelper.SendEmail(user.Email, confirmationLink);
+                    var msg = new Message(new string[] { user.Email }, "Confirm Email", confirmationLink);
+                   
+                    _emailSender.SendEmail(msg);
+                    if (ModelState.IsValid)
                         return RedirectToAction("Index");
                     else
                     {

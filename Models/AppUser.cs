@@ -9,6 +9,10 @@ namespace Identity.Models
 {
     public class AppUser : IdentityUser
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public bool IsUserLoggedIn { get; set; }
+
         /*public Country Country { get; set; }
 
         public int Age { get; set; }

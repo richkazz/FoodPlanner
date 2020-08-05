@@ -27,6 +27,8 @@ namespace Identity.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([Required]string name)
         {
+            
+
             if (ModelState.IsValid)
             {
                 IdentityResult result = await roleManager.CreateAsync(new IdentityRole(name));
@@ -79,6 +81,7 @@ namespace Identity.Controllers
             IdentityResult result;
             if (ModelState.IsValid)
             {
+                IdentityRole rolename = await roleManager.FindByIdAsync(model.RoleId);
                 foreach (string userId in model.AddIds ?? new string[] { })
                 {
                     AppUser user = await userManager.FindByIdAsync(userId);
