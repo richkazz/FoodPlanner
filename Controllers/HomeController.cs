@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FoodPlanner.Interfaces;
+using Identity.Migrations;
 using Identity.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,12 +14,13 @@ namespace Identity.Controllers
     //[Authorize(Roles = "Manager")]
     public class HomeController : Controller
     {
-        
+
         private readonly Identity.Models.AppIdentityDbContext _context;
         private UserManager<AppUser> userManager;
         private SignInManager<AppUser> signInManager;
         private IUserLoginStatus _userLoginStatus;
-        public HomeController(UserManager<AppUser> userMgr,  IUserLoginStatus userLoginStatus, AppIdentityDbContext context, SignInManager<AppUser> signinMgr)
+
+        public HomeController(UserManager<AppUser> userMgr, IUserLoginStatus userLoginStatus, AppIdentityDbContext context, SignInManager<AppUser> signinMgr)
         {
             signInManager = signinMgr;
             _context = context;
@@ -31,11 +33,23 @@ namespace Identity.Controllers
         {
             return View((object)"Hello");
         }*/
+        
+       // [Authorize]
 
-        //[Authorize(Roles = "Manager")]
-        [Authorize]
+       
+
+        
+        //[Authorize]
         public async Task<IActionResult> Index()
         {
+            AppUser appUser = await userManager.FindByNameAsync(User.Identity.Name);
+
+
+            var getrole = userManager.GetRolesAsync(appUser);
+            if (getrole.Result[0] == "User")
+            {
+                return RedirectToAction("Index", "UserHome");
+            }
             List<bool> sig = new List<bool>();
             //int user = await userManager;
             var userCount = userManager.Users.Count();
@@ -58,5 +72,6 @@ namespace Identity.Controllers
             //string message = "Hello " + user.UserName;
             return View();
         }
+       
     }
 }

@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ActionLayout.cshtml";
 
     var ingswallow = (List<FoodPlanner.Models.Swallows.Swallow>)ViewData["swallows"];
     var mainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["mainIngredients"];
@@ -84,20 +84,3 @@
 
     </div>
 
-
-<script>
-            $(function () {
-                $("#example1").DataTable({
-                    "responsive": true,
-                    "autoWidth": false,
-                });
-                $('#example2').DataTable({
-                    "paging": true,
-                    "lengthChange": false,
-                    "searching": false,
-                    "ordering": true,
-                    "info": true,
-                    "autoWidth": false,
-                    "responsive": true,
-                });
-            });</script>

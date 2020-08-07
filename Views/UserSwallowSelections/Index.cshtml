@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_MainMenu.cshtml";
     var inguserswallow = (List<FoodPlanner.Models.Swallows.Swallow>)ViewData["userswallow"];
     int i = 1;
 
@@ -80,7 +80,7 @@
 
                 <div id="con-close-modal" class="modal fade  " tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none; ">
                     <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
+                        <div class="modal-content"style="background-image: url('pic/plantain-3.jpg'); background-size:cover;">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 
@@ -98,29 +98,7 @@
         </div>
     </div>
 
-
-
-<script>
-    $(function () {
-        $("#example1").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-        });
-        $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-        });
-    });
-</script>
-
-
-@*@section scripts{*@
-<script type="text/javascript">
+    <script type="text/javascript">
         $(document).ready(function () {
             // Add abstract popup
             $(".addAbstract").click(function (e) {
@@ -466,9 +444,7 @@
 
         });
 
-</script>
-@*}*@
-
+    </script>
 
 
 

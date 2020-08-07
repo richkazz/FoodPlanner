@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ActionLayout.cshtml";
     int i = 1;
 }
 
@@ -52,17 +52,3 @@
 <!-- /.content -->
 
 
-
-<script>
-        $(function () {
-            $("#example1").DataTable();
-            $('#example2').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-            });
-        });
-</script>

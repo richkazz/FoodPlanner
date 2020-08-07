@@ -11,5 +11,8 @@ namespace FoodPlanner.Models.UserPlScheduler
         public string UserId { get; set; }
         public string FoodList { get; set; }
         public DateTime StartTime { get; set; }
+        public int SoupFrequency { get; set; }
+        public string SoupList { get; set; }
+        public bool showSF { get; set; }
     }
 }

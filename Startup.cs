@@ -43,6 +43,7 @@ namespace Identity
             services.AddScoped<ISchedule, ScheduleService>();
             services.AddScoped<IUserLoginStatus, UserLoginStatusService>();
             services.AddScoped<IContactUs, ContactUsService>();
+            services.AddScoped<ISoupFrequency, SoupFrequencyService>();
             services.AddScoped<IOperation, OperationService>();
             services.AddScoped<IEmailSender, EmailSender>();
             /*services.ConfigureApplicationCookie(options =>

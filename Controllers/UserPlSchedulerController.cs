@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FoodPlanner.Interface;
+using FoodPlanner.Interfaces;
 using FoodPlanner.Models.UserPlScheduler;
 using Identity.Models;
 using Microsoft.AspNetCore.Identity;
@@ -16,14 +17,18 @@ namespace FoodPlanner.Controllers
         private readonly AppIdentityDbContext _context;
         private ISchedule _scheduleManager;
         private IOperation _scheduleoperation;
+        private ISoupFrequency _soupfrequencymanager;
+
         private UserManager<AppUser> _userManager;
         private RoleManager<IdentityRole> roleManager;
         private SignInManager<AppUser> signInManager;
 
-        public UserPlSchedulerController(AppIdentityDbContext context, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
+        public UserPlSchedulerController(AppIdentityDbContext context, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
             _scheduleManager = scheduleManager;
+            _soupfrequencymanager = soupfrequencymanager;
+
             _scheduleoperation = scheduleoperation;
             _userManager = userManager;
             roleManager = roleMgr;
@@ -141,10 +146,15 @@ namespace FoodPlanner.Controllers
             List<string> combinedlistsplit = new List<string>();
             List<DateTime> savetime = new List<DateTime>();
 
-            var Check = await _context.UserPlScheduler.ToListAsync();
             var randomise = await _scheduleManager.OrderOne();
             combinedlist = randomise;
             AppUser users = await _userManager.FindByNameAsync(User.Identity.Name);
+            var Check = await _context.UserPlScheduler.Where
+                (
+                x => x.UserId == users.Id
+                ).Select(x => x.SoupFrequency
+                ).ToListAsync();
+
             var comperuser = await _scheduleoperation.FetchFoodByTime(users.Id);
             if (comperuser == null)
             {
@@ -237,6 +247,7 @@ namespace FoodPlanner.Controllers
 
             if (databasetime == presenttime)
             {
+                var startSoupFrquency = await _soupfrequencymanager.StartSoupFrequencyProcess(users.Id,Check[0]);
 
                 string combinedFoodList =
                    (combinedlist[0] + "#" + combinedlist[1] + "#" + combinedlist[2] + "#" + combinedlist[3] + "#" + combinedlist[4] + "#" + combinedlist[5] + "#" + combinedlist[6]);

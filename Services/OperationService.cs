@@ -114,7 +114,9 @@ namespace FoodPlanner.Services
                 {
                     FoodList = model.FoodList,
                     UserId = model.UserId,
-                    Id = model.Id
+                    Id = model.Id,
+                    SoupList=model.SoupList,
+                    SoupFrequency=model.SoupFrequency
                 }).ToList();
             return model;
         }

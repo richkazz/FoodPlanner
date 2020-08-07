@@ -1,56 +1,209 @@
 ﻿@model FoodPlanner.Models.ContactUs.Contactus
 @{
     ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_ModalLayout.cshtml";
+    
 }
 
 
-<style>
-    .card-transparent {
-        background-color: rgba(255, 255, 255, 0.5);
+
+    <style>
+    :root {
+       --body_gradient_left:#7200D0;
+       --body_gradient_right: #C800C1;
+       --form_bg: transparent;
+       --input_bg: #E5E5E5;
+       --input_hover:#eaeaea;
+       --submit_bg: #1FCC44;
+       --submit_hover: ;
+       --icon_color:#6b6b6b;
+   }
+   * {
+       padding: 0;
+       margin: 0;
+       box-sizing: border-box;
+   }
+    body {
+        /* make the body full height*/
+        height: 100vh;
+        /* set our custom font */
+        font-family: 'Roboto', sans-serif;
+        /* create a linear gradient*/
+        background: url('@Url.Content("~/Pic/kitchen.jpg")'); background-size:cover;
+        display: flex;
+        background-size: cover;
     }
-</style>
 
-<div class="hold-transition login-page" style="background: url('@Url.Content("~/Pic/plantain-1.jpg")'); background-size:cover;">
-    <div class="login-box">
-        <div class="login-logo">
-            <a asp-controller="Account" asp-action="Login"><b>Food</b>Scheduler</a>
-        </div>
-        <!-- /.login-logo -->
-        <div class="card card-transparent">
-            <div class="card-body login-card-body card-transparent">
-                
+   #form_wrapper {
+       width: 1000px;
+       height: 700px;
+       /* this will help us center it*/
+       margin:auto;
+       background-color: var(--form_bg);
+       border-radius: 50px;
+       /* make it a grid container*/
+       display: grid;
+       /* with two columns of same width*/
+       grid-template-columns: 1fr 1fr;
+       /* with a small gap in between them*/
+       grid-gap: 5vw;
+       /* add some padding around */
+       padding: 5vh 15px;
+   }
+   #form_left {
+       /* center the image */
+       display: flex;
+       justify-content: center;
+       align-items: center;
+   }
 
-                    <!-- we are adding the .class so bootstrap.js collapse plugin detects it -->
+   #form_left img {
+       width: 350px;
+       height: 350px;
+   }
+   #form_right {
+       display: grid;
+       /* single column layout */
+       grid-template-columns: 1fr;
+       /* have some gap in between elements*/
+       grid-gap: 20px;
+       padding: 10% 5%;
+   }
+   .input_container {
+       background-color: var(--input_bg);
+       /* vertically align icon and text inside the div*/
+       display: flex;
+       align-items: center;
+       padding-left: 20px;
+   }
 
-                    <div asp-validation-summary="All" class="text-danger"></div>
+   .input_container:hover {
+       background-color: var(--input_hover);
+   }
 
-                    <form method="post">
-                        <div class="form-group">
-                            <label asp-for="Name"></label>
-                            <input asp-for="Name" type="text" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Email"></label>
-                            <input asp-for="Email" class="form-control" type="email" />
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Body"></label>
-                            <textarea asp-for="Body" class="form-control" style="height:150px"></textarea>
+   .input_container,
+   #input_submit {
+       height: 60px;
+       /* make the borders more round */
+       border-radius: 30px;
+       width: 100%;
+   }
 
-                        </div>
+   .input_field {
+       /* customize the input tag with lighter font and some padding*/
+       color: var(--icon_color);
+       background-color: inherit;
+       width: 90%;
+       border: none;
+       font-size: 1.3rem;
+       font-weight: 400;
+       padding-left: 30px;
+   }
+
+   .input_field:hover,
+   .input_field:focus {
+       /* remove the outline */
+       outline: none;
+   }
+
+   #input_submit {
+       /* submit button has a different color and different padding */
+       background-color: var(--submit_bg);
+       padding-left: 0;
+       font-weight: bold;
+       color: white;
+       text-transform: uppercase;
+   }
+
+   #input_submit:hover {
+       background-color: var(--submit_hover);
+       /* simple color transition on hover */
+       transition: background-color,
+           1s;
+       cursor: pointer;
+   }
+   h1,
+   span {
+       text-align: center;
+       font-style: italic;
+       font-size: xx-large;
+   }
+
+   /* shift it a bit lower */
+   #create_account {
+       display: block;
+       position: relative;
+       top: 30px;
+   }
+
+   a {
+       /* remove default underline */
+       text-decoration: none;
+       color: var(--submit_bg);
+       font-weight: bold;
+   }
+
+   a:hover {
+       color: var(--submit_hover);
+   }
+   .boy{
+       border: solid;
+       color: white;
+       text-align: center;
+       border-color:white;
+       font-size: xx-large;
+       border-radius: 40%;
+       border:solid green ;
+       background-color:#40e263 ;
+   }
 
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                    </form>
+   i {
+       color: var(--icon_color);
+   }
+    /* make it responsive */
+    media screen and (max-width:768px) {
 
+/* make the layout  a single column and add some margin to the wrapper */
+#form_wrapper {
+   grid-template-columns: 1fr;
+   margin-left: 10px;
+   margin-right: 10px;
+}
+/* on small screen we don't display the image */
+#form_left {
+   display: none;
+}
 
-                    <!-- /.card-body -->
-
-               
+    </style>
+<body>
+    <div id="form_wrapper">
+        <div id="form_left" >
+            <div style="background: url('@Url.Content("~/Pic/Foodscheduler-1.jpg")'); background-size:cover;">
 
             </div>
-            <!-- /.login-card-body -->
+            
+        </div>
+        <div id="form_right">
+            <h1> contact us</h1>
+            <div class="input_container">
+                <i class="fas fa-envelope"></i>
+                <input placeholder="first name" type="fname" name="fname" id="field_firstname" class='input_field'>
+            </div>
+            <div class="input_container">
+                <i class="fas fa-envelope"></i>
+                <input placeholder="Email" type="email" name="Email" id="field_email" class='input_field'>
+            </div>
+
+            <label for="subject"></label>
+            <textarea id="subject" name="subject" placeholder="Write  us a message.." style="height:200px"></textarea><br>
+
+
+            <input type="submit" value="send" id='input_submit' class='input_field'>
+
+            <div class="boy">
+
+                <a href="HOME2.html">go back</a>
+            </div>
         </div>
     </div>
-</div>
+</body>

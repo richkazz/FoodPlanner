@@ -81,7 +81,22 @@ namespace Identity.Controllers
                         TempData["UserId"] = appUser.Id;
 
 
-                        return Redirect(login.ReturnUrl ?? "/");
+                        var getrole = userManager.GetRolesAsync(appUser);
+                        if(getrole.Result[0] == "Admin")
+                        {
+                            return Redirect(login.ReturnUrl ?? "/");
+                        }
+                        if(getrole.Result[0] == "User")
+                        {
+                            return RedirectToAction("Index", "UserHome");
+                        }
+                        if(getrole.Result[0] == "Manager")
+                        {
+                            return Redirect(login.ReturnUrl ?? "/UserIndex");
+                        }
+                        //if (User.IsInRole(appUser.Id,"Admin")) { return Redirect(login.ReturnUrl ?? "/"); }
+                        //if (User.IsInRole("Admin")) { return Redirect(login.ReturnUrl ?? "/"); }
+
                     }
                     /*bool emailStatus = await userManager.IsEmailConfirmedAsync(appUser);
                     if (emailStatus == false)

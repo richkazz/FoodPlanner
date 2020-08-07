@@ -2,104 +2,86 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ActionLayout.cshtml";
     var lightfoodmainIngrdient = (List<FoodPlanner.Models.MainIngredients.MainIngredient>)ViewData["lightfoodmainIngrdient"];
     var lightfood = (List<FoodPlanner.Models.LightFood.LightFood>)ViewData["lightfood"];
     int i = 1;
 }
 
-    <div class="container container-fluid">
 
-        <div class="card" style="background-color:rgba(255, 255, 255, 0.5)">
+<div class="container container-fluid">
 
+    <div class="card" style="background-color:rgba(255, 255, 255, 0.5)">
+        <!-- /.card-header -->
+        <div class="card-body">
 
-            <!-- /.card-header -->
-            <div class="card-body">
+            <p>
+                <a asp-action="Create" class="btn btn-primary btn-sm">Add light food nutrient</a>
+            </p>
 
-                <p>
-                    <a asp-action="Create" class="btn btn-primary btn-sm">Add light food nutrient</a>
-                </p>
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
 
-                <table id="example1" class="table table-bordered table-striped">
-                    <thead>
+                    <tr>
 
+                        <th>S/N</th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LightFoodName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LightFoodMainIngredient)
+                        </th>
+
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+
+                        int lig = 0;
+                        @foreach (var ing in lightfood)
+                        {
+                            if (item.LightFoodName == ing.Id)
+                            {
+                                break;
+                            }
+                            lig++;
+                        }
+                        int lim = 0;
+                        @foreach (var ing in lightfoodmainIngrdient)
+                        {
+                            if (item.LightFoodMainIngredient == ing.Id)
+                            {
+                                break;
+                            }
+                            lim++;
+                        }
                         <tr>
 
-                            <th>S/N</th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.LightFoodName)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.LightFoodMainIngredient)
-                            </th>
+                            <td>@i</td>
 
-                            <th>Action</th>
+                            <td>
+                                @lightfood[lig].Name
+                            </td>
+                            <td>
+                                @lightfoodmainIngrdient[lim].Name
+                            </td>
+
+
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-
-                            int lig = 0;
-                            @foreach (var ing in lightfood)
-                            {
-                                if (item.LightFoodName == ing.Id)
-                                {
-                                    break;
-                                }
-                                lig++;
-                            }
-                            int lim = 0;
-                            @foreach (var ing in lightfoodmainIngrdient)
-                            {
-                                if (item.LightFoodMainIngredient == ing.Id)
-                                {
-                                    break;
-                                }
-                                lim++;
-                            }
-                            <tr>
-
-                                <td>@i</td>
-
-                                <td>
-                                    @lightfood[lig].Name
-                                </td>
-                                <td>
-                                    @lightfoodmainIngrdient[lim].Name
-                                </td>
-
-
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                                </td>
-                            </tr>
-                            i++;
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <!-- /.card-body -->
+                        i++;
+                    }
+                </tbody>
+            </table>
         </div>
+        <!-- /.card-body -->
     </div>
+</div>
 
 
-
-<script>
-    $(function () {
-        $("#example1").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-        });
-        $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-        });
-    });</scrip

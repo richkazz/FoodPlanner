@@ -1,0 +1,36 @@
+﻿
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_ActionLayout.cshtml";
+    var inggraindish = (List<FoodPlanner.Models.SoupFrequency>)ViewData["graindish"];
+
+
+}
+
+
+    <div class="row">
+
+
+        <div class="col-md-12">
+
+            <div class="form-group mb-3">
+
+                <form asp-controller="WeeklySoupSchedule" asp-action="Index">
+                    <label>GrainDish</label>
+                    <select name="item" class="form-control select2bs4" style="width: 100%;" id="UserGrainDishId">
+                        @foreach (var item in inggraindish)
+                        
+                        {
+                            <option value="@item.SoupCount">@item.SoupCount</option>
+
+                        }
+
+
+                    </select>
+                    <input type="submit" value="Create">
+                </form>
+            </div>
+
+        </div>
+    </div>
+

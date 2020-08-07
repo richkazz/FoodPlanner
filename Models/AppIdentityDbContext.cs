@@ -11,6 +11,7 @@ using FoodPlanner.Models.UserFoodSelectionCategory;
 using FoodPlanner.Models.SoupCategory;
 using FoodPlanner.Models.ContactUs;
 using FoodPlanner.Models.FAQ;
+using FoodPlanner.Models;
 
 namespace Identity.Models
 {
@@ -34,5 +35,6 @@ namespace Identity.Models
         public DbSet<FoodPlanner.Models.UserPlScheduler.UserPlSchedulers> UserPlScheduler { get; set; }
         public DbSet<FoodPlanner.Models.ContactUs.Contactus> Contactus { get; set; }
         public DbSet<FoodPlanner.Models.FAQ.FAQs> FAQs { get; set; }
+        public DbSet<FoodPlanner.Models.SoupFrequency> SoupFrequency { get; set; }
     }
 }

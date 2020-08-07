@@ -182,6 +182,21 @@ namespace Identity.Migrations
                     b.ToTable("SwallowSoup");
                 });
 
+            modelBuilder.Entity("FoodPlanner.Models.SoupFrequency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("SoupCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SoupFrequency");
+                });
+
             modelBuilder.Entity("FoodPlanner.Models.Soups.Soup", b =>
                 {
                     b.Property<int>("Id")
@@ -313,11 +328,20 @@ namespace Identity.Migrations
                     b.Property<string>("FoodList")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("SoupFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SoupList")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("showSF")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

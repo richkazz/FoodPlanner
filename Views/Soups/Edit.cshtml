@@ -2,34 +2,51 @@
 
 @{
     ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ActionLayout.cshtml";
 }
+<style>
+    .card-transparent {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .content-align {
+        margin-top: 10%;
+        margin-left: 40%;
+    }
+</style>
+<div class="content-align">
+    <div class="row">
+
+        <div class="col-4">
+
+            <div class="login-logo">
+                <a asp-controller="Account" asp-action="Login"><b>Food</b>Scheduler</a>
+            </div>
+            <div class="card" style="background-color:rgba(255, 255, 255, 0.5)">
+
+                <div class="card-body">
+
+                    <div>
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <label asp-for="Name" class="control-label"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary btn-block">Update</button>
+                            </div>
+                            <div>
+                                <a asp-action="Index" class="btn btn-default align-content-center" style="margin-left:30%;">Back to List</a>
+                            </div>
+                        </form>
+                    </div>
 
 
-<div >
 
-    <h4>Soup</h4>
-    <div class="card card-secondary">
-        <div class="card-body">
-            <hr />
-            <div class="row">
-                <div class="col-md-4">
-                    <form asp-action="Edit">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="Id" />
-                        <div class="form-group">
-                            <label asp-for="Name" class="control-label"></label>
-                            <input asp-for="Name" class="form-control" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <input type="submit" value="Update" class="btn btn-default" />
-                            <span><a asp-action="Index">Back to List</a></span>
-                        </div>
-                    </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

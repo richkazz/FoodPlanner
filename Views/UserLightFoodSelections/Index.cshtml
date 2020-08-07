@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_MainMenu.cshtml";
     var inguserlightfood = (List<FoodPlanner.Models.LightFood.LightFood>)ViewData["userlightfood"];
     int i = 1;
 
@@ -80,7 +80,7 @@
 
                 <div id="con-close-modal" class="modal fade  " tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none; ">
                     <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
+                        <div class="modal-content"style="background-image: url('pic/plantain-3.jpg'); background-size:cover;">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 
@@ -98,35 +98,13 @@
         </div>
     </div>
 
-
-
-<script>
-    $(function () {
-        $("#example1").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-        });
-        $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-        });
-    });
-</script>
-
-
-@*@section scripts{*@
-<script type="text/javascript">
+    <script type="text/javascript">
         $(document).ready(function () {
             // Add abstract popup
             $(".addAbstract").click(function (e) {
                 e.preventDefault();
                 debugger;
-                $("#con-close-modal .modal-content").load("@Url.Action("Create", "UserLightFoodSelections")", function (str, status, req) {
+                $("#con-close-modal .modal-content").load("@Url.Action("Create","UserLightFoodSelections")", function (str, status, req) {
                     req.fail(function () {
                         Swal.fire(
                             'Error occured!',
@@ -244,26 +222,6 @@
                     form_data.append(key, doc[key]);
                 }
 
-                    //var input = document.querySelector('#document');
-
-
-                    //if (input.files.length !== 0) {
-                    //    form_data.append("Abstract", input.files[0], input.files[0].name);
-                    //}
-
-                  @*$.ajax({
-                        type: "POST",
-                        url: '@Url.Action("Edit","UserLightFoodSelections")',
-                        data: { Id: $("#Id").val(), UserId: $("#UserId").val(), UserLightFoodId: $("#UserLightFoodId").val() },
-                        dataType: "json",
-                        error: function () {
-                            alert("An error occurred.");
-                        },
-                        success: function (data) {
-
-                        }
-
-                  });*@
                    $.ajax({
                         url: "@Url.Action("Edit", "UserLightFoodSelections")",
                         data: form_data,
@@ -335,85 +293,6 @@
 
 
 
-              //$("body").on("click","#btnEditSubmit",function (e) {
-              //      e.preventDefault();
-              //    var doc = {
-              //      Id: $("#Id").val(),
-              //      UserId: $("#UserId").val(),
-              //      UserLightFoodId: $("#UserLightFoodId").val()
-              //    };
-
-
-              //   var form_data = new FormData();
-
-              //  for (var key in doc) {
-              //      form_data.append(key, doc[key]);
-              //  }
-
-              //      //var input = document.querySelector('#document');
-
-
-              //      //if (input.files.length !== 0) {
-              //      //    form_data.append("Abstract", input.files[0], input.files[0].name);
-              //      //}
-
-              //    //@*$.ajax({
-                        type: "POST",
-                        url: '@Url.Action("Edit","UserLightFoodSelections")',
-                        data: { Id: $("#Id").val(), UserId: $("#UserId").val(), UserLightFoodId: $("#UserLightFoodId").val() },
-                        dataType: "json",
-                        error: function () {
-                            alert("An error occurred.");
-                        },
-                        success: function (data) {
-
-                        }
-
-                  });*@
-                  // $.ajax({
-                  //  //    url: "@Url.Action("Details", "UserLightFoodSelections")",
-                    //    data: form_data,
-                    //    method: 'post',
-                    //    contentType: false,
-                    //    processData: false,
-                    //}).fail(function () {
-                    //        Swal.fire(
-                    //            'Error occured!',
-                    //            'Unknown error occured while processing request',
-
-                    //            'warning'
-                    //        ).then(function () {
-                    //            location.replace("@Url.Action("Index","UserLightFoodSelections")");
-                    //        });
-                    //}).done(function (data) {
-                    //    if (data.status == 0) {
-                    //        Swal.fire(
-                    //            'Error occured!',
-                    //            data.message,
-                    //            'warning'
-                    //        ).then(function () {
-                    //    //        location.replace("@Url.Action("Index","UserLightFoodSelections")");
-                        //    });
-                        //} else {
-                        //    Swal.fire(
-                        //        //'Updated Light food successfully!',
-                        //        data.message,
-                        //        'success'
-                        //    ).then(function () {
-            //            //        location.replace("@Url.Action("Index","UserLightFoodSelections")");
-            //                });
-            //            }
-            //        })
-
-
-
-
-
-            //  });
-            //// end of details
-
-
-
              // Delete Paper Submission
             $(".btnLockOut").click(function (e) {
                 e.preventDefault();
@@ -466,5 +345,4 @@
 
         });
 
-</script>
-@*}*@
+    </script>
