@@ -9,6 +9,10 @@
         @item
     </h1>
 }
+@if (ViewBag.showOrNotShow == true)
+{
+    <li class="nav-item"><a asp-controller="WeeklySoupSchedule" asp-action="Create" class="nav-link"><i class="fa fa-link"></i> <span>Create</span></a></li>
 
+}
 
 

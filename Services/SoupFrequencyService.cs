@@ -29,7 +29,8 @@ namespace FoodPlanner.Services
             var postSoupFrequency = new UserPlSchedulers
             {
                 SoupFrequency = item,
-                UserId = userName
+                UserId = userName,
+                showSF=false
 
             };
             var createFoodList = await ÙpdateSoupFrequency(postSoupFrequency);

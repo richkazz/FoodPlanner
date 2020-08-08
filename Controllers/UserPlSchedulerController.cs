@@ -54,9 +54,10 @@ namespace FoodPlanner.Controllers
             List<AppUser> nonMembers = new List<AppUser>();
             AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
             var randomise = await _scheduleManager.OrderOne();
+
             combinedlist = randomise;
-            var comperuser = await _scheduleoperation.FetchFoodByTime(user.Id);
-                if (comperuser == null)
+            var comperuser = await _context.UserPlScheduler.Where(x => x.UserId == user.Id).Select(x => x.FoodList).ToListAsync();
+                if (comperuser[0]==null)
                 {
 
                     string combinedFoodList =
@@ -75,7 +76,7 @@ namespace FoodPlanner.Controllers
                         UserId = user.Id,
                         StartTime = t
                     };
-                    var createFoodList = await _scheduleoperation.CreateFood(FoodList);
+                    var createFoodList = await _scheduleoperation.CreateFood(FoodList,user.Id);
                 }
             
             
@@ -156,7 +157,7 @@ namespace FoodPlanner.Controllers
                 ).ToListAsync();
 
             var comperuser = await _scheduleoperation.FetchFoodByTime(users.Id);
-            if (comperuser == null)
+            if (comperuser.FoodList == null)
             {
                 string combinedFoodList =
                   (combinedlist[0] + "#" + combinedlist[1] + "#" + combinedlist[2] + "#" + combinedlist[3] + "#" + combinedlist[4] + "#" + combinedlist[5] + "#" + combinedlist[6]);
@@ -178,9 +179,9 @@ namespace FoodPlanner.Controllers
                     UserId = user.Id,
                     StartTime = t
                 };
-                var createFoodList = await _scheduleoperation.CreateFood(FoodList);
+                var createFoodList = await _scheduleoperation.CreateFood(FoodList,user.Id);
 
-                var newlist = await _scheduleManager.SplitFoodList(User.Identity.Name);
+                var newlist = await _scheduleManager.SplitFoodList(user.Id);
                 combinedlistsplit = newlist;
 
 
@@ -260,7 +261,8 @@ namespace FoodPlanner.Controllers
                 var FoodList = new UserPlSchedulers
                 {
                     FoodList = combinedFoodList,
-                    StartTime = timeupdate
+                    StartTime = timeupdate,
+                    showSF=true
                 };
                 var updateFoodList = await _scheduleoperation.ÙpdateFood(FoodList);
 
@@ -293,7 +295,9 @@ namespace FoodPlanner.Controllers
             }
             else
             {
-                var newlist = await _scheduleManager.SplitFoodList(User.Identity.Name);
+                AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+                var newlist = await _scheduleManager.SplitFoodList(user.Id);
                 combinedlistsplit = newlist;
 
 

@@ -350,7 +350,7 @@ namespace FoodPlanner.Services
             return ordertwocombinedlist;
         }
 
-        public async Task<List<string>> SplitFoodList(string userName)
+        public async Task<List<string>> SplitFoodList(string user)
         {
             List<string> splitfoodlist = new List<string>();
             List<string> unsplitfoodlist = new List<string>();
@@ -358,23 +358,9 @@ namespace FoodPlanner.Services
             
 
             
-            if(userName != null)
-            {
-                var user = await _userManager.FindByIdAsync(userName);
-                if (user != null)
-                {
-                    userlist.Add(user);
-                }
-                
+           
 
-            }
-            if(userlist.Count==0)
-            {
-                var user = await _userManager.FindByNameAsync(userName);
-                userlist.Add(user);
-            }
-
-            var fetchWeeklySchedule = await _scheduleoperation.FetchFoodByUserId(userlist[0].Id);
+            var fetchWeeklySchedule = await _scheduleoperation.FetchFoodByUserId(user);
 
 
             //var Check = await _context.UserPlSchedulers.ToListAsync();

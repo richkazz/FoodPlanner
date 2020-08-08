@@ -7,22 +7,50 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.FoodSchedulerTimeStarts;
 using Identity.Models;
+using FoodPlanner.Interface;
+using FoodPlanner.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using FoodPlanner.Models.UserPlScheduler;
 
 namespace FoodPlanner.Controllers
 {
     public class FoodSchedulerTimeStartsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private ISchedule _scheduleManager;
+        private ISoupFrequency _soupfrequencymanager;
+        private IOperation _scheduleoperation;
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> roleManager;
+        private SignInManager<AppUser> signInManager;
 
-        public FoodSchedulerTimeStartsController(AppIdentityDbContext context)
+        public FoodSchedulerTimeStartsController(AppIdentityDbContext context, RoleManager<IdentityRole> roleMgr, ISoupFrequency soupfrequencymanager, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
+            _scheduleManager = scheduleManager;
+            _soupfrequencymanager = soupfrequencymanager;
+            _scheduleoperation = scheduleoperation;
+            _userManager = userManager;
+            roleManager = roleMgr;
+            signInManager = signinMgr;
         }
 
         // GET: FoodSchedulerTimeStarts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FoodSchedulerTimeStarts.ToListAsync());
+            AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            ViewBag.userId = appUser.Id;
+            var checkExist = await _context.UserPlScheduler.Where(x => x.UserId == appUser.Id).Select(x => x.UserId).ToListAsync();
+            if (checkExist.Count == 0)
+            {
+                return RedirectToAction("Create", "FoodSchedulerTimeStarts");
+            }
+            else 
+            {
+                return View(await _context.UserPlScheduler.ToListAsync());
+            }
+            
+           
         }
 
         // GET: FoodSchedulerTimeStarts/Details/5
@@ -54,15 +82,20 @@ namespace FoodPlanner.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] FoodSchedulerTimeStarts foodSchedulerTimeStarts)
+        public async Task<IActionResult> Create( DateTime dateTime)
         {
-            if (ModelState.IsValid)
+            AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            
+            var FoodList = new UserPlSchedulers
             {
-                _context.Add(foodSchedulerTimeStarts);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(foodSchedulerTimeStarts);
+                
+                UserId = appUser.Id,
+                StartTime = dateTime
+            };
+            var createStartTime = await _scheduleoperation.ÙpdateStartDateTime(FoodList);
+
+
+            return RedirectToAction("Index", "FoodSchedulerTimeStarts");
         }
 
         // GET: FoodSchedulerTimeStarts/Edit/5

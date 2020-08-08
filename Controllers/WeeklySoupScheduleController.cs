@@ -51,13 +51,18 @@ namespace FoodPlanner.Controllers
             return View();
         }
         //post
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(int item)
         {
             AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
             var Check =  _context.UserPlScheduler.Where(x => x.UserId == appUser.Id).Select(x => x.SoupFrequency).ToList();
-            if(Check[0] == 0)
+            var CheckBool =  _context.UserPlScheduler.Where(x => x.UserId == appUser.Id).Select(x => x.showSF).ToList();
+
+            if (item == 0&CheckBool[0]==true) { return RedirectToAction("Create", "WeeklySoupSchedule"); }
+            if (item == 0&CheckBool[0]==false&Check[0]==0) { return RedirectToAction("Create", "WeeklySoupSchedule"); }
+
+            if (Check[0] == 0)
             {
                 var startSoupFrquency = await _soupfrequencymanager.StartSoupFrequencyProcess(appUser.Id, item);
 
@@ -72,14 +77,7 @@ namespace FoodPlanner.Controllers
             }
             var getSoupList = await _context.UserPlScheduler.Where(x => x.UserId == appUser.Id).Select(x => x.showSF).ToListAsync();
 
-            if (getSoupList[0] == true)
-            {
-
-            }
-            if (getSoupList[0] == false)
-            {
-
-            }
+            ViewBag.showOrNotShow = getSoupList[0];
 
             if ( Check[0]!=0)
             {

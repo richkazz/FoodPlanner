@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FoodPlanner.Models.FoodSchedulerTimeStarts.FoodSchedulerTimeStarts>
+﻿@model IEnumerable<FoodPlanner.Models.UserPlScheduler.UserPlSchedulers>
 
 @{
     ViewData["Title"] = "Index";
@@ -23,23 +23,22 @@
                     <tr>
 
                         <th>Name</th>
-                        <th>Action</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
-                    {
+                    @{var time = Model.Where(x => x.UserId == ViewBag.userId).Select(x => x.StartTime).ToList();
+                    var Id = Model.Where(x => x.UserId == ViewBag.userId).Select(x => x.Id).ToList();
+                    }
+                   
+
                         <tr>
 
-                            <td>@item.Name</td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                            </td>
+                            <td>@time[0]</td>
+                           
                         </tr>
 
-                    }
+                   
                 </tbody>
             </table>
         </div>
@@ -55,17 +54,3 @@
 <!-- /.content -->
 
 
-
-<script>
-        $(function () {
-            $("#example1").DataTable();
-            $('#example2').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-            });
-        });
-</script>

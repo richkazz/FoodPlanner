@@ -159,7 +159,7 @@ namespace Identity.Controllers
 
             await signInManager.SignOutAsync();
                         
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         public IActionResult AccessDenied()

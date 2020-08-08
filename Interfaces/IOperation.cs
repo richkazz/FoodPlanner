@@ -8,8 +8,9 @@ namespace FoodPlanner.Interface
 {
     public interface IOperation
     {
-        Task<bool> CreateFood(UserPlSchedulers model);
+        Task<bool> CreateFood(UserPlSchedulers model,string users);
         Task<bool> ÙpdateFood(UserPlSchedulers model);
+        Task<bool> ÙpdateStartDateTime(UserPlSchedulers model);
         Task<bool> DeleteFood(int id);
         Task<List<UserPlSchedulers>> FetchFoods();
         Task<UserPlSchedulers> FetchFoodById(int id);

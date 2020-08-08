@@ -19,27 +19,22 @@ namespace FoodPlanner.Services
             _context = context;
         }
 
-        public async Task<bool> CreateFood(UserPlSchedulers model)
+        public async Task<bool> CreateFood(UserPlSchedulers model,string users)
         {
-            bool msg = false;
-
             var checkExist = await _context.UserPlScheduler.FirstOrDefaultAsync(x => x.UserId == model.UserId);
-            if (checkExist == null)
+            if (checkExist != null)
             {
-                var result = new UserPlSchedulers
-                {
-                    FoodList = model.FoodList,
-                    UserId = model.UserId,
-                    StartTime = model.StartTime
-                };
-                await _context.UserPlScheduler.AddAsync(result);
-                if (await _context.SaveChangesAsync() > 0)
-                {
-                    msg = true;
-                }
-            }
 
-            return msg;
+                checkExist.FoodList = model.FoodList;
+                
+
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+
+           
         }
 
         public async Task<bool> DeleteFood(int id)
@@ -135,6 +130,29 @@ namespace FoodPlanner.Services
                 return true;
             }
             return false;
+        }
+
+        public async Task<bool> ÙpdateStartDateTime(UserPlSchedulers model)
+        {
+            bool msg = false;
+
+            var checkExist = await _context.UserPlScheduler.FirstOrDefaultAsync(x => x.UserId == model.UserId);
+            if (checkExist == null)
+            {
+                var result = new UserPlSchedulers
+                {
+                    UserId = model.UserId,
+                    StartTime = model.StartTime
+                   
+                };
+                await _context.UserPlScheduler.AddAsync(result);
+                if (await _context.SaveChangesAsync() > 0)
+                {
+                    msg = true;
+                }
+            }
+
+            return msg;
         }
     }
 }

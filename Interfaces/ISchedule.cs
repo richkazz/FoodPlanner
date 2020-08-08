@@ -12,7 +12,7 @@ namespace FoodPlanner.Interface
         Task<List<string>> RandomizeSwallow();
         Task<List<string>> OrderOne();
         Task<List<string>> OrderTwo();
-        Task<List<string>> SplitFoodList(string userName);
+        Task<List<string>> SplitFoodList(string user);
         Task<List<string>> ComperTime(string userName);
     }
 }
