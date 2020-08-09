@@ -11,22 +11,25 @@ using System.Collections.Generic;
 using FoodPlanner.Email;
 using FoodPlanner.Interfaces;
 using System.Linq;
+using NToastNotify;
 
 namespace Identity.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+
         private readonly AppIdentityDbContext _context;
         private UserManager<AppUser> userManager;
         private SignInManager<AppUser> signInManager;
         private IEmailSender _emailSender;
         private IUserLoginStatus __userLoginStatus;
         private RoleManager<IdentityRole> roleManager;
+        private readonly IToastNotification _toastNotification;
 
-        public AccountController(AppIdentityDbContext context, IEmailSender emailSender, IUserLoginStatus userLoginStatus, UserManager<AppUser> userMgr, SignInManager<AppUser> signinMgr, RoleManager<IdentityRole> roleMgr)
+        public AccountController(AppIdentityDbContext context, IToastNotification toastNotification, IEmailSender emailSender, IUserLoginStatus userLoginStatus, UserManager<AppUser> userMgr, SignInManager<AppUser> signinMgr, RoleManager<IdentityRole> roleMgr)
         {
-
+            _toastNotification = toastNotification;
             _context = context;
             userManager = userMgr;
             signInManager = signinMgr;
@@ -84,7 +87,7 @@ namespace Identity.Controllers
                         var getrole = userManager.GetRolesAsync(appUser);
                         if(getrole.Result[0] == "Admin")
                         {
-                            return Redirect(login.ReturnUrl ?? "/");
+                            return RedirectToAction("Index1", "Home");
                         }
                         if(getrole.Result[0] == "User")
                         {
@@ -96,7 +99,7 @@ namespace Identity.Controllers
                         }
                         //if (User.IsInRole(appUser.Id,"Admin")) { return Redirect(login.ReturnUrl ?? "/"); }
                         //if (User.IsInRole("Admin")) { return Redirect(login.ReturnUrl ?? "/"); }
-
+                        return Redirect(login.ReturnUrl ?? "/");
                     }
                     /*bool emailStatus = await userManager.IsEmailConfirmedAsync(appUser);
                     if (emailStatus == false)
@@ -104,15 +107,20 @@ namespace Identity.Controllers
                         ModelState.AddModelError(nameof(login.Email), "Email is unconfirmed, please confirm it first");
                     }*/
 
-                    /*if (result.IsLockedOut)
-                        ModelState.AddModelError("", "Your account is locked out. Kindly wait for 10 minutes and try again");*/
-
+                    if (result1.IsLockedOut)
+                        _toastNotification.AddErrorToastMessage("Your account is locked out. Kindly wait for 10 minutes and try again");
+                    if (result1.Succeeded==false){
+                        _toastNotification.AddErrorToastMessage("Login Failed: Invalid Email or password");
+                        return View();
+                    }
                     if (result1.RequiresTwoFactor)
                     {
                         return RedirectToAction("LoginTwoStep", new { appUser.Email, login.ReturnUrl });
                     }
                 }
-                ModelState.AddModelError(nameof(login.Email), "Login Failed: Invalid Email or password");
+                _toastNotification.AddErrorToastMessage("Login Failed: Invalid Email or password");
+                return View();
+                //ModelState.AddModelError(nameof(login.Email), "Login Failed: Invalid Email or password");
             }
             return View(login);
         }

@@ -43,16 +43,21 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-
-                            int gra = 0;
-                            @foreach (var ing in inguserlightfood)
+                           
+                            if (item.UserId == ViewBag.userId)
                             {
-                                if (item.UserLightFoodId == ing.Id)
+                                 int gra = 0;
+                                @foreach (var ing in inguserlightfood)
                                 {
-                                    break;
+                                
+                                         if (item.UserLightFoodId == ing.Id)
+                                    {
+                                        break;
+                                    }
+                                    gra++;
                                 }
-                                gra++;
-                            }
+                               
+                            
                             <tr>
 
                                 <td>@i</td>
@@ -74,6 +79,7 @@
                                 </td>
                             </tr>
                             i++;
+                                }
                         }
                     </tbody>
                 </table>

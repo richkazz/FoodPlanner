@@ -14,6 +14,7 @@ using FoodPlanner.Interface;
 using FoodPlanner.Services;
 using FoodPlanner.Interfaces;
 using FoodPlanner.Email;
+using NToastNotify;
 
 namespace Identity
 {
@@ -58,6 +59,11 @@ namespace Identity
                 opts.LoginPath = "/Authenticate/Login";
                 opts.AccessDeniedPath = "/Stop/Index";
             });*/
+            services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
+            {
+                ProgressBar = false,
+                PositionClass = ToastPositions.TopCenter
+            });
 
             services.Configure<IdentityOptions>(opts =>
             {
@@ -128,6 +134,7 @@ namespace Identity
                 // The default HSTS value is 30 days.
                 app.UseHsts();
             }
+            app.UseNToastNotify();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

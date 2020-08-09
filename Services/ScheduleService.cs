@@ -24,7 +24,7 @@ namespace FoodPlanner.Services
 
 
         // GET: GrainDishes
-        public async Task<List<string>> RandomizeGrainDish()
+        public async Task<List<string>> RandomizeGrainDish(string userName)
         {
             //create a list of name resultgraindish
             List<string> resultgraindish = new List<string>();
@@ -38,7 +38,7 @@ namespace FoodPlanner.Services
                 while (resultgraindishList.Count < 7)
                 {
                     //and if resultgraindishList.count is less than 7 it perfom the method randomItem
-                    var chosengraindish = await randomItems();
+                    var chosengraindish = await randomItems(userName);
 
                     resultgraindishList = await randomResult(chosengraindish, resultgraindish);
                 }
@@ -56,18 +56,18 @@ namespace FoodPlanner.Services
 
         //This is a method to get the list from the model
         #region Helper
-        public async Task<List<string>> randomItems()
+        public async Task<List<string>> randomItems(string userName)
         {
             List<string> list = new List<string>();
             List<string> chosengraindish = new List<string>();
 
 
             //this is to get the list of string from the model
-            var gettingfoodfromgraindish = await _context.UserGrainDishSelection.ToListAsync();
+            var gettingfoodfromgraindish = await _context.UserGrainDishSelection.Where(x => x.UserId == userName).ToListAsync();
 
 
             //if statement to randomise the list of string gotten from the model
-            if (gettingfoodfromgraindish.Count != 4)
+            if (gettingfoodfromgraindish.Count>3)
             {
                 //to loop through the list gottten from the model and randomise it
                 foreach (var item in gettingfoodfromgraindish)
@@ -121,7 +121,7 @@ namespace FoodPlanner.Services
         #endregion
 
         // GET: GrainDishes
-        public async Task<List<string>> RandomizeLightFood()
+        public async Task<List<string>> RandomizeLightFood(string userName)
         {
             //create a list of name resultgraindish
             List<string> resultlightfood = new List<string>();
@@ -134,7 +134,7 @@ namespace FoodPlanner.Services
                 while (resultlightfoodList.Count < 7)
                 {
                     //and if resultgraindishList.count is less than 7 it perfom the method randomItem
-                    var chosenlightfood = await randomItemsLightFood();
+                    var chosenlightfood = await randomItemsLightFood(userName);
 
                     resultlightfoodList = await randomResultLightFood(chosenlightfood, resultlightfood);
                 }
@@ -153,32 +153,34 @@ namespace FoodPlanner.Services
 
         //This is a method to get the list from the model
         #region Helper
-        public async Task<List<string>> randomItemsLightFood()
+        public async Task<List<string>> randomItemsLightFood(string userName)
         {
             List<string> list = new List<string>();
             List<string> chosenlghtfood = new List<string>();
 
 
             //this is to get the list of string from the model
-            var gettingfoodfromlightfood = await _context.UserLightFoodSelection.ToListAsync();
+            var gettingfoodfromlightfood = await _context.UserLightFoodSelection.Where(x => x.UserId == userName).ToListAsync();
 
 
             //if statement to randomise the list of string gotten from the model
-            if (gettingfoodfromlightfood.Count != 4)
+            if (gettingfoodfromlightfood.Count > 3)
             {
+                  foreach (var item in gettingfoodfromlightfood)
+                    {
+                        var random = new Random();
+                        //add a nem item to the list 
+                        list.Add(_context.LightFood.FirstOrDefaultAsync(x => x.Id == item.UserLightFoodId).Result.Name);
+                        //list.Add(item.UserLightFoodId);
+                        //randomise the index
+                        int index = random.Next(list.Count);
+                        //add the item from the list index to chosen
+                        //chosenlghtfood.Add(list[index]);
+                        chosenlghtfood.Add(list[index]);
+                    }
+                
                 //to loop through the list gottten from the model and randomise it
-                foreach (var item in gettingfoodfromlightfood)
-                {
-                    var random = new Random();
-                    //add a nem item to the list 
-                    list.Add(_context.LightFood.FirstOrDefaultAsync(x => x.Id == item.UserLightFoodId).Result.Name);
-                    //list.Add(item.UserLightFoodId);
-                    //randomise the index
-                    int index = random.Next(list.Count);
-                    //add the item from the list index to chosen
-                    //chosenlghtfood.Add(list[index]);
-                    chosenlghtfood.Add(list[index]);
-                }
+                
 
 
             }
@@ -220,7 +222,7 @@ namespace FoodPlanner.Services
 
         #endregion
 
-        public async Task<List<string>> RandomizeSwallow()
+        public async Task<List<string>> RandomizeSwallow(string userName)
         {
             //create a list of name resultswallow
             List<string> resultswallow = new List<string>();
@@ -234,7 +236,7 @@ namespace FoodPlanner.Services
                 while (resultswallowList.Count < 7)
                 {
                     //and if resultswallowList.count is less than 7 it perfom the method randomItem
-                    var chosenswallow = await randomItemswallow();
+                    var chosenswallow = await randomItemswallow(userName);
 
                     resultswallowList = await randomResultswallow(chosenswallow, resultswallow);
                 }
@@ -252,18 +254,18 @@ namespace FoodPlanner.Services
 
         //This is a method to get the list from the model
         #region Helper
-        public async Task<List<string>> randomItemswallow()
+        public async Task<List<string>> randomItemswallow(string userName)
         {
             List<string> list = new List<string>();
             List<string> chosenswallow = new List<string>();
 
 
             //this is to get the list of string from the model
-            var gettingfoodfromswallow = await _context.UserSwallowSelection.ToListAsync();
+            var gettingfoodfromswallow = await _context.UserSwallowSelection.Where(x => x.UserId == userName).ToListAsync();
 
 
             //if statement to randomise the list of string gotten from the model
-            if (gettingfoodfromswallow.Count != 4)
+            if (gettingfoodfromswallow.Count>3)
             {
                 //to loop through the list gottten from the model and randomise it
                 foreach (var item in gettingfoodfromswallow)
@@ -317,11 +319,11 @@ namespace FoodPlanner.Services
 
         #endregion
 
-        public async Task<List<string>> OrderOne()
+        public async Task<List<string>> OrderOne(string userName)
         {
-            var lightFoodList = await RandomizeLightFood();
-            var grainDishesList = await RandomizeLightFood();
-            var swallowList = await RandomizeSwallow();
+            var lightFoodList = await RandomizeLightFood(userName);
+            var grainDishesList = await RandomizeLightFood(userName);
+            var swallowList = await RandomizeSwallow(userName);
             List<string> combinedlist = new List<string>();
             int len = lightFoodList.Count();
             for (int i = 0; i < len; i++)
@@ -334,11 +336,11 @@ namespace FoodPlanner.Services
 
         }
 
-        public async Task<List<string>> OrderTwo()
+        public async Task<List<string>> OrderTwo(string userName)
         {
-            var lightFoodList = await RandomizeLightFood();
-            var grainDishesList = await RandomizeLightFood();
-            var swallowList = await RandomizeSwallow();
+            var lightFoodList = await RandomizeLightFood(userName);
+            var grainDishesList = await RandomizeLightFood(userName);
+            var swallowList = await RandomizeSwallow(userName);
             List<string> ordertwocombinedlist = new List<string>();
             int len = lightFoodList.Count();
             for (int i = 0; i < len; i++)

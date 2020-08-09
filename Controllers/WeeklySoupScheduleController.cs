@@ -10,37 +10,47 @@ using Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace FoodPlanner.Controllers
 {
     public class WeeklySoupScheduleController : Controller
     {
-    private readonly AppIdentityDbContext _context;
-    private ISchedule _scheduleManager;
-    private ISoupFrequency _soupfrequencymanager;
-    private IOperation _scheduleoperation;
-    private UserManager<AppUser> _userManager;
-    private RoleManager<IdentityRole> roleManager;
-    private SignInManager<AppUser> signInManager;
+        private readonly IToastNotification _toastNotification;
+        private readonly AppIdentityDbContext _context;
+        private ISchedule _scheduleManager;
+        private IOperation _scheduleoperation;
+        private ISoupFrequency _soupfrequencymanager;
 
-    public WeeklySoupScheduleController(AppIdentityDbContext context, RoleManager<IdentityRole> roleMgr, ISoupFrequency soupfrequencymanager, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
-    {
-        _context = context;
-        _scheduleManager = scheduleManager;
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> roleManager;
+        private SignInManager<AppUser> signInManager;
+
+        public WeeklySoupScheduleController(AppIdentityDbContext context, IToastNotification toastNotification, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
+        {
+            _context = context;
+            _scheduleManager = scheduleManager;
             _soupfrequencymanager = soupfrequencymanager;
-        _scheduleoperation = scheduleoperation;
-        _userManager = userManager;
-        roleManager = roleMgr;
-        signInManager = signinMgr;
-    }
-   
-        
+            _toastNotification = toastNotification;
+            _scheduleoperation = scheduleoperation;
+            _userManager = userManager;
+            roleManager = roleMgr;
+            signInManager = signinMgr;
+        }
+
+
         //get create
         public async Task<IActionResult> CreateAsync()
         {
-            
-            
+            AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            var checkExistUserInUserPSIDb = await _context.UserSoupSelection.Select(x => x.UserId).ToListAsync();
+            if (checkExistUserInUserPSIDb.Contains(appUser.Id) == false)
+            {
+                _toastNotification.AddErrorToastMessage("Select Soups First");
+                return RedirectToAction("Index", "UserSoupSelections");
+            }
+
 
             var getfrequency = await _soupfrequencymanager.GetSelectFrequency();
             var getSoupFrequency = getfrequency.Select(x => new SoupFrequency {
@@ -56,6 +66,12 @@ namespace FoodPlanner.Controllers
         public async Task<IActionResult> Index(int item)
         {
             AppUser appUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            var checkExistUserInUserPSIDb = await _context.UserPlScheduler.Select(x => x.UserId).ToListAsync();
+            if (checkExistUserInUserPSIDb.Contains(appUser.Id) == false)
+            {
+                _toastNotification.AddErrorToastMessage("Time for when sheduling to start should be selected first");
+                return RedirectToAction("Create", "FoodSchedulerTimeStarts");
+            }
             var Check =  _context.UserPlScheduler.Where(x => x.UserId == appUser.Id).Select(x => x.SoupFrequency).ToList();
             var CheckBool =  _context.UserPlScheduler.Where(x => x.UserId == appUser.Id).Select(x => x.showSF).ToList();
 

@@ -7,21 +7,40 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.UserFoodSelectionCategory;
 using Identity.Models;
+using FoodPlanner.Interface;
+using FoodPlanner.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace FoodPlanner.Controllers
 {
     public class UserSoupSelectionsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private ISchedule _scheduleManager;
+        private IOperation _scheduleoperation;
+        private ISoupFrequency _soupfrequencymanager;
 
-        public UserSoupSelectionsController(AppIdentityDbContext context)
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> roleManager;
+        private SignInManager<AppUser> signInManager;
+
+        public UserSoupSelectionsController(AppIdentityDbContext context, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
+            _scheduleManager = scheduleManager;
+            _soupfrequencymanager = soupfrequencymanager;
+
+            _scheduleoperation = scheduleoperation;
+            _userManager = userManager;
+            roleManager = roleMgr;
+            signInManager = signinMgr;
         }
 
         // GET: UserSoupSelections
         public async Task<IActionResult> Index(string message)
         {
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            ViewBag.userId = user.Id;
 
 
             ViewBag.Error = message;
@@ -83,12 +102,13 @@ namespace FoodPlanner.Controllers
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserId,UserSoupId")] UserSoupSelection userSoupsSelection, int grainselect)
         {
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            userSoupsSelection.UserId = 1;
+            userSoupsSelection.UserId = user.Id;
             //userSoupsSelection.UserSoupsId = grainselect;
-            if (ModelState.IsValid)
+            if (userSoupsSelection.Id>=0&userSoupsSelection.UserId!=null&userSoupsSelection.UserSoupId!=0)
             {
-                var item = await _context.UserSoupSelection.FirstOrDefaultAsync(x => x.UserSoupId == userSoupsSelection.UserSoupId);
+                var item = await _context.UserSoupSelection.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(x => x.UserSoupId == userSoupsSelection.UserSoupId);
                 if (item == null)
                 {
                     _context.Add(userSoupsSelection);
@@ -136,9 +156,21 @@ namespace FoodPlanner.Controllers
         //public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,UserSoupsId")] UserSoupSelection userSoupsSelection, int grainselect)
         public async Task<JsonResult> Edit(int id, [Bind("Id,UserId,UserSoupId")] UserSoupSelection userSoupsSelection, int grainselect)
         {
-            // userSoupsSelection.UserId = 1;
-            //userSoupsSelection.UserSoupsId = grainselect;
-            if (id != userSoupsSelection.Id)
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var checkExist = await _context.UserSoupSelection.Where(x => x.UserId == user.Id).Select(x => x.UserSoupId).ToListAsync();
+
+            List<int> checkEqual = new List<int>();
+            var checkIs = await _context.UserSoupSelection.Where(x => x.UserId == user.Id).Where(x => x.Id == id).Select(x => x.UserSoupId).ToListAsync();
+            foreach (var item in checkExist)
+            {
+                if (item == checkIs[0])
+                {
+                    checkEqual.Add(id);
+                }
+            }
+            // userGrainDishesSelection.UserId = 1;
+            //userGrainDishesSelection.UserGrainDishesId = grainselect;
+            if (checkExist.Contains(id) == true & checkEqual[0] == 0)
             {
                 return new JsonResult(new { status = 0, message = "Item wasn't found" });
                 //return NotFound();
@@ -149,7 +181,7 @@ namespace FoodPlanner.Controllers
                 try
                 {
                     var item = await _context.UserSoupSelection.FirstOrDefaultAsync(x => x.UserSoupId == userSoupsSelection.UserSoupId && x.Id != userSoupsSelection.Id);
-                    if (item == null)
+                    if (!checkExist.Contains(userSoupsSelection.UserSoupId))
                     {
                         _context.Update(userSoupsSelection);
                         await _context.SaveChangesAsync();
@@ -157,7 +189,7 @@ namespace FoodPlanner.Controllers
                     }
                     else
                     {
-                        return new JsonResult(new { status = 0, message = "Your request already exist" });
+                        return new JsonResult(new { status = 0, message = "The soup aldery exist" });
                     }
                 }
                 catch (DbUpdateConcurrencyException)

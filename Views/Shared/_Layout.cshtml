@@ -46,7 +46,7 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 
 
- 
+
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper" style="background: url('@Url.Content("~/Pic/plantain-2.jpg")'); background-size:cover;">
         <!-- Content Header (Page header) -->
@@ -54,6 +54,6 @@
         @RenderBody()
 
     </div>
-
+    @await Component.InvokeAsync("NToastNotify")
 </body>
 </html>

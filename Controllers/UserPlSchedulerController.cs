@@ -9,11 +9,13 @@ using Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 
 namespace FoodPlanner.Controllers
 {
     public class UserPlSchedulerController : Controller
     {
+        private readonly IToastNotification _toastNotification;
         private readonly AppIdentityDbContext _context;
         private ISchedule _scheduleManager;
         private IOperation _scheduleoperation;
@@ -23,12 +25,12 @@ namespace FoodPlanner.Controllers
         private RoleManager<IdentityRole> roleManager;
         private SignInManager<AppUser> signInManager;
 
-        public UserPlSchedulerController(AppIdentityDbContext context, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
+        public UserPlSchedulerController(AppIdentityDbContext context, IToastNotification toastNotification, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
             _scheduleManager = scheduleManager;
             _soupfrequencymanager = soupfrequencymanager;
-
+            _toastNotification = toastNotification;
             _scheduleoperation = scheduleoperation;
             _userManager = userManager;
             roleManager = roleMgr;
@@ -53,8 +55,33 @@ namespace FoodPlanner.Controllers
             List<AppUser> members = new List<AppUser>();
             List<AppUser> nonMembers = new List<AppUser>();
             AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var randomise = await _scheduleManager.OrderOne();
+            var checkExistUserInUserPSIDb = await _context.UserPlScheduler.Select(x => x.UserId).ToListAsync();
+            if (checkExistUserInUserPSIDb.Contains(user.Id)==false)
+            {
+                _toastNotification.AddErrorToastMessage("Time for when sheduling to start should be selected first");
+                return RedirectToAction("Create", "FoodSchedulerTimeStarts");
+            }
+            var gettingfoodfromlightfood = await _context.UserLightFoodSelection.Where(x => x.UserId == user.Id).Select(x=>x.Id).ToListAsync();
+            var gettingfoodfromgraindish = await _context.UserGrainDishSelection.Where(x => x.UserId == user.Id).Select(x => x.Id).ToListAsync();
+            var gettingfoodfromswallow = await _context.UserSwallowSelection.Where(x => x.UserId == user.Id).Select(x => x.Id).ToListAsync();
 
+
+            if (gettingfoodfromgraindish.Count<4)
+            {
+                _toastNotification.AddErrorToastMessage("The selected grain dishes should not be less than 4");
+                return View();
+            }
+            if (gettingfoodfromlightfood.Count<4)
+            {
+                _toastNotification.AddErrorToastMessage("The selected light food should not be less than 4");
+                return View();
+            }
+            if (gettingfoodfromswallow.Count<4)
+            {
+                _toastNotification.AddErrorToastMessage("The selected swallow should not be less than 4");
+                return View();
+            }
+            var randomise = await _scheduleManager.OrderOne(user.Id);
             combinedlist = randomise;
             var comperuser = await _context.UserPlScheduler.Where(x => x.UserId == user.Id).Select(x => x.FoodList).ToListAsync();
                 if (comperuser[0]==null)
@@ -146,10 +173,30 @@ namespace FoodPlanner.Controllers
             List<string> timeresult = new List<string>();
             List<string> combinedlistsplit = new List<string>();
             List<DateTime> savetime = new List<DateTime>();
-
-            var randomise = await _scheduleManager.OrderOne();
-            combinedlist = randomise;
             AppUser users = await _userManager.FindByNameAsync(User.Identity.Name);
+            var gettingfoodfromlightfood = await _context.UserLightFoodSelection.Where(x => x.UserId == users.Id).Select(x => x.Id).ToListAsync();
+            var gettingfoodfromgraindish = await _context.UserGrainDishSelection.Where(x => x.UserId == users.Id).Select(x => x.Id).ToListAsync();
+            var gettingfoodfromswallow = await _context.UserSwallowSelection.Where(x => x.UserId == users.Id).Select(x => x.Id).ToListAsync();
+
+
+            if (gettingfoodfromgraindish.Count < 4)
+            {
+                _toastNotification.AddErrorToastMessage("The selected grain dishes should not be less than 4");
+                return View();
+            }
+            if (gettingfoodfromlightfood.Count < 4)
+            {
+                _toastNotification.AddErrorToastMessage("The selected light food should not be less than 4");
+                return View();
+            }
+            if (gettingfoodfromswallow.Count < 4)
+            {
+                _toastNotification.AddErrorToastMessage("The selected swallow should not be less than 4");
+                return View();
+            }
+            var randomise = await _scheduleManager.OrderOne(users.Id);
+            combinedlist = randomise;
+            
             var Check = await _context.UserPlScheduler.Where
                 (
                 x => x.UserId == users.Id
@@ -159,6 +206,7 @@ namespace FoodPlanner.Controllers
             var comperuser = await _scheduleoperation.FetchFoodByTime(users.Id);
             if (comperuser.FoodList == null)
             {
+
                 string combinedFoodList =
                   (combinedlist[0] + "#" + combinedlist[1] + "#" + combinedlist[2] + "#" + combinedlist[3] + "#" + combinedlist[4] + "#" + combinedlist[5] + "#" + combinedlist[6]);
 

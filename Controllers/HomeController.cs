@@ -35,19 +35,22 @@ namespace Identity.Controllers
         }*/
         
        // [Authorize]
-      
+      public async Task<IActionResult> Index()
+        {
+            return RedirectToAction("Login", "Account");
+        }
        
 
         
         //[Authorize]
-        public async Task<IActionResult> Index(Login login)
+        public async Task<IActionResult> Index1()
         {
             
            
             //{
                 //
             ////}
-            //AppUser appUser = await userManager.FindByNameAsync(User.Identity.Name);
+            AppUser appUser = await userManager.FindByNameAsync(User.Identity.Name);
 
 
             //var getrole = userManager.GetRolesAsync(appUser);

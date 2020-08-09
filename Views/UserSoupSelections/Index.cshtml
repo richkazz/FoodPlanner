@@ -42,8 +42,9 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-
-                            int gra = 0;
+                            if (item.UserId == ViewBag.userId)
+                            {
+                                int gra = 0;
                             @foreach (var ing in inguserswallow)
                             {
                                 if (item.UserSoupId == ing.Id)
@@ -72,7 +73,8 @@
                                     @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
                                 </td>
                             </tr>
-                            i++;
+                                i++;
+                            }
                         }
                     </tbody>
                 </table>

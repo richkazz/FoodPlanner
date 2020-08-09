@@ -24,7 +24,7 @@
 
 <body class="hold-transition login-page" style="background: url('@Url.Content("~/Pic/plantain-1.jpg")'); background-size:cover;">
 
-    <div >
+    <div>
 
 
         <!-- Content Wrapper. Contains page content -->
@@ -43,7 +43,7 @@
             <!-- /.card-header -->
             <div>
                 <div class="login-box card-transparent" style="margin:auto; top:200px">
-                    <div class="text-danger" asp-validation-summary="All"></div>
+                    @*<div class="text-danger" asp-validation-summary="ModelOnly"></div>*@
 
                     <div class="login-logo">
                         <a href="../../index2.html"><b>Food</b>Scheduler</a>
@@ -120,6 +120,6 @@
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/dist/js/adminlte.min.js"></script>
     <script src="~/dist/js/demo.js"></script>
-
+    @await Component.InvokeAsync("NToastNotify")
 </body>
 

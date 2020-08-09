@@ -205,7 +205,7 @@ namespace FoodPlanner.Services
             var soupcount = _context.UserPlScheduler.Where(x => x.UserId == userName).Select(x => x.SoupFrequency).ToList();
 
             //this is to get the list of string from the model
-            var gettingfoodfromgraindish = await _context.UserSoupSelection.ToListAsync();
+            var gettingfoodfromgraindish = await _context.UserSoupSelection.Where(x=>x.UserId==userName).ToListAsync();
 
 
             //if statement to randomise the list of string gotten from the model

@@ -7,11 +7,11 @@ namespace FoodPlanner.Interface
 {
     public interface ISchedule
     {
-        Task<List<string>> RandomizeLightFood();
-        Task<List<string>> RandomizeGrainDish();
-        Task<List<string>> RandomizeSwallow();
-        Task<List<string>> OrderOne();
-        Task<List<string>> OrderTwo();
+        Task<List<string>> RandomizeLightFood(string userName);
+        Task<List<string>> RandomizeGrainDish(string userName);
+        Task<List<string>> RandomizeSwallow(string userName);
+        Task<List<string>> OrderOne(string userName);
+        Task<List<string>> OrderTwo(string userName);
         Task<List<string>> SplitFoodList(string user);
         Task<List<string>> ComperTime(string userName);
     }

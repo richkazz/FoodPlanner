@@ -7,27 +7,44 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.UserFoodSelectionCategory;
 using Identity.Models;
+using FoodPlanner.Interface;
+using Microsoft.AspNetCore.Identity;
+using FoodPlanner.Interfaces;
 
 namespace FoodPlanner.Controllers
 {
     public class UserSwallowSelectionsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private ISchedule _scheduleManager;
+        private IOperation _scheduleoperation;
+        private ISoupFrequency _soupfrequencymanager;
 
-        public UserSwallowSelectionsController(AppIdentityDbContext context)
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> roleManager;
+        private SignInManager<AppUser> signInManager;
+
+        public UserSwallowSelectionsController(AppIdentityDbContext context, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
+            _scheduleManager = scheduleManager;
+            _soupfrequencymanager = soupfrequencymanager;
+
+            _scheduleoperation = scheduleoperation;
+            _userManager = userManager;
+            roleManager = roleMgr;
+            signInManager = signinMgr;
         }
 
         // GET: UserSwallowSelections
         public async Task<IActionResult> Index(string message)
         {
-
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             ViewBag.Error = message;
             var userswallow = await _context.Swallow.ToListAsync();
             ViewData["userswallow"] = userswallow;
-
+            ViewBag.userId = user.Id;
 
             return View(await _context.UserSwallowSelection.ToListAsync());
         }
@@ -83,12 +100,13 @@ namespace FoodPlanner.Controllers
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserId,UserSwallowId")] UserSwallowSelection userSwallowsSelection, int grainselect)
         {
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            userSwallowsSelection.UserId = 1;
+            userSwallowsSelection.UserId = user.Id;
             //userSwallowsSelection.UserSwallowsId = grainselect;
-            if (ModelState.IsValid)
+            if (userSwallowsSelection.Id>=0&userSwallowsSelection.UserId!=null&userSwallowsSelection.UserSwallowId!=0)
             {
-                var item = await _context.UserSwallowSelection.FirstOrDefaultAsync(x => x.UserSwallowId == userSwallowsSelection.UserSwallowId);
+                var item = await _context.UserSwallowSelection.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(x => x.UserSwallowId == userSwallowsSelection.UserSwallowId);
                 if (item == null)
                 {
                     _context.Add(userSwallowsSelection);
@@ -136,9 +154,20 @@ namespace FoodPlanner.Controllers
         //public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,UserSwallowsId")] UserSwallowSelection userSwallowsSelection, int grainselect)
         public async Task<JsonResult> Edit(int id, [Bind("Id,UserId,UserSwallowId")] UserSwallowSelection userSwallowsSelection, int grainselect)
         {
-            // userSwallowsSelection.UserId = 1;
-            //userSwallowsSelection.UserSwallowsId = grainselect;
-            if (id != userSwallowsSelection.Id)
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var checkExist = await _context.UserSwallowSelection.Where(x => x.UserId == user.Id).Select(x => x.UserSwallowId).ToListAsync();
+            List<int> checkEqual = new List<int>();
+            var checkIs = await _context.UserSwallowSelection.Where(x => x.UserId == user.Id).Where(x => x.Id == id).Select(x => x.UserSwallowId).ToListAsync();
+            foreach (var item in checkExist)
+            {
+                if (item == checkIs[0])
+                {
+                    checkEqual.Add(id);
+                }
+            }
+            // userGrainDishesSelection.UserId = 1;
+            //userGrainDishesSelection.UserGrainDishesId = grainselect;
+            if (checkExist.Contains(id) == true & checkEqual[0] == 0)
             {
                 return new JsonResult(new { status = 0, message = "Item wasn't found" });
                 //return NotFound();
@@ -149,7 +178,7 @@ namespace FoodPlanner.Controllers
                 try
                 {
                     var item = await _context.UserSwallowSelection.FirstOrDefaultAsync(x => x.UserSwallowId == userSwallowsSelection.UserSwallowId && x.Id != userSwallowsSelection.Id);
-                    if (item == null)
+                    if (!checkExist.Contains(userSwallowsSelection.UserSwallowId))
                     {
                         _context.Update(userSwallowsSelection);
                         await _context.SaveChangesAsync();
@@ -157,7 +186,7 @@ namespace FoodPlanner.Controllers
                     }
                     else
                     {
-                        return new JsonResult(new { status = 0, message = "Your request already exist" });
+                        return new JsonResult(new { status = 0, message = "The swallow already exist" });
                     }
                 }
                 catch (DbUpdateConcurrencyException)

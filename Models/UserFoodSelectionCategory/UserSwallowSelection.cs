@@ -10,7 +10,7 @@ namespace FoodPlanner.Models.UserFoodSelectionCategory
     {
 
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [Required(ErrorMessage = "Select an option")]
         [Display(Name = "Swallow")]
         public int UserSwallowId { get; set; }

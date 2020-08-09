@@ -7,27 +7,48 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.UserFoodSelectionCategory;
 using Identity.Models;
+using FoodPlanner.Interface;
+using FoodPlanner.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace FoodPlanner.Controllers
 {
     public class UserLightFoodSelectionsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private ISchedule _scheduleManager;
+        private IOperation _scheduleoperation;
+        private ISoupFrequency _soupfrequencymanager;
 
-        public UserLightFoodSelectionsController(AppIdentityDbContext context)
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> roleManager;
+        private SignInManager<AppUser> signInManager;
+
+        public UserLightFoodSelectionsController(AppIdentityDbContext context, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
+            _scheduleManager = scheduleManager;
+            _soupfrequencymanager = soupfrequencymanager;
+
+            _scheduleoperation = scheduleoperation;
+            _userManager = userManager;
+            roleManager = roleMgr;
+            signInManager = signinMgr;
         }
 
         // GET: UserLightFoodSelections
         public async Task<IActionResult> Index(string message)
         {
 
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             ViewBag.Error = message;
+            var checkExist = await _context.UserLightFoodSelection.Where(x => x.UserId == user.Id).Select(x => x.UserLightFoodId).ToListAsync();
+
             var userlightfood = await _context.LightFood.ToListAsync();
             ViewData["userlightfood"] = userlightfood;
-
+            ViewBag.userIdPass = checkExist;
+            ViewBag.userId = user.Id;
 
             return View(await _context.UserLightFoodSelection.ToListAsync());
         }
@@ -72,6 +93,8 @@ namespace FoodPlanner.Controllers
         // GET: UserLightFoodSelections/Create
         public async Task<IActionResult> create(string message)
         {
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            ViewBag.passUserId = user.Id;
             ViewBag.Error = message;
             var userlightfood = await _context.LightFood.ToListAsync();
             ViewData["userlightfood"] = userlightfood;
@@ -83,12 +106,13 @@ namespace FoodPlanner.Controllers
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserId,UserLightFoodId")] UserLightFoodSelection userLightFoodSelection, int grainselect)
         {
-
-            userLightFoodSelection.UserId = 1;
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+             
+            userLightFoodSelection.UserId = user.Id;
             //userLightFoodSelection.UserLightFoodId = grainselect;
-            if (ModelState.IsValid)
+            if (userLightFoodSelection.Id>=0&userLightFoodSelection.UserId!=null&userLightFoodSelection.UserLightFoodId!=0)
             {
-                var item = await _context.UserLightFoodSelection.FirstOrDefaultAsync(x => x.UserLightFoodId == userLightFoodSelection.UserLightFoodId);
+                var item = await _context.UserLightFoodSelection.Where(x=>x.UserId==user.Id).FirstOrDefaultAsync(x => x.UserLightFoodId == userLightFoodSelection.UserLightFoodId);
                 if (item == null)
                 {
                     _context.Add(userLightFoodSelection);
@@ -136,9 +160,22 @@ namespace FoodPlanner.Controllers
         //public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,UserLightFoodId")] UserLightFoodSelection userLightFoodSelection, int grainselect)
         public async Task<JsonResult> Edit(int id, [Bind("Id,UserId,UserLightFoodId")] UserLightFoodSelection userLightFoodSelection, int grainselect)
         {
-            // userLightFoodSelection.UserId = 1;
-            //userLightFoodSelection.UserLightFoodId = grainselect;
-            if (id != userLightFoodSelection.Id)
+            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var checkExist = await _context.UserLightFoodSelection.Where(x => x.UserId == user.Id).Select(x => x.UserLightFoodId).ToListAsync();
+
+
+            List<int> checkEqual = new List<int>();
+            var checkIs = await _context.UserLightFoodSelection.Where(x => x.UserId == user.Id).Where(x => x.Id == id).Select(x => x.UserLightFoodId).ToListAsync();
+            foreach (var item in checkExist)
+            {
+                if (item == checkIs[0])
+                {
+                    checkEqual.Add(id);
+                }
+            }
+            // userGrainDishesSelection.UserId = 1;
+            //userGrainDishesSelection.UserGrainDishesId = grainselect;
+            if (checkExist.Contains(id) == true & checkEqual[0] == 0)
             {
                 return new JsonResult(new { status = 0, message = "Item wasn't found" });
                 //return NotFound();
@@ -148,8 +185,8 @@ namespace FoodPlanner.Controllers
             {
                 try
                 {
-                    var item = await _context.UserLightFoodSelection.FirstOrDefaultAsync(x => x.UserLightFoodId == userLightFoodSelection.UserLightFoodId && x.Id != userLightFoodSelection.Id);
-                    if (item == null)
+                    var item = await _context.UserLightFoodSelection.Where(x=>x.UserId==user.Id).Select(x => x.UserLightFoodId == userLightFoodSelection.UserLightFoodId/* && x.Id != userLightFoodSelection.Id*/).ToListAsync();
+                    if (!checkExist.Contains(userLightFoodSelection.UserLightFoodId))
                     {
                         _context.Update(userLightFoodSelection);
                         await _context.SaveChangesAsync();
@@ -157,7 +194,7 @@ namespace FoodPlanner.Controllers
                     }
                     else
                     {
-                        return new JsonResult(new { status = 0, message = "Your request already exist" });
+                        return new JsonResult(new { status = 0, message = "The light food already exist" });
                     }
                 }
                 catch (DbUpdateConcurrencyException)
