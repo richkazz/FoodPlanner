@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.LightFood;
 using Identity.Models;
+using NToastNotify;
+using FoodPlanner.Util;
 
 namespace FoodPlanner.Controllers
 {
     public class LightFoodsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public LightFoodsController(AppIdentityDbContext context)
+        public LightFoodsController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
 
@@ -56,18 +60,37 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] LightFood lightFood)
         {
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(lightFood);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(lightFood);
-                await _context.SaveChangesAsync();
+                var checkExit = _context.LightFood.Where(x => x.Name.ToLower() == lightFood.Name.ToLower()).Count();
+
+                if (checkExit == 0)
+                {
+                    _context.Add(lightFood);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+                    return RedirectToAction(nameof(Index));
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
                 return RedirectToAction(nameof(Index));
+
+
             }
+
             return View(lightFood);
         }
 
         // GET: LightFoods/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+
             if (id == null)
             {
                 return NotFound();
@@ -88,31 +111,26 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] LightFood lightFood)
         {
-            if (id != lightFood.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(lightFood);
             }
 
-            if (ModelState.IsValid)
+            var CheckExist = _context.LightFood.Where(x => x.Id != lightFood.Id && x.Name.ToLower() == lightFood.Name.ToLower()).Count();
+
+            if (CheckExist == 0)
             {
-                try
-                {
-                    _context.Update(lightFood);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LightFoodExists(lightFood.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var model = _context.LightFood.FirstOrDefault(x => x.Id == lightFood.Id);
+                model.Name = lightFood.Name;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
+            _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
             return View(lightFood);
         }
 

@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models;
 using Identity.Models;
+using FoodPlanner.Util;
+using NToastNotify;
 
 namespace FoodPlanner.Controllers
 {
     public class SoupFrequenciesController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public SoupFrequenciesController(AppIdentityDbContext context)
+        public SoupFrequenciesController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
 
@@ -56,11 +60,28 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,SoupCount")] SoupFrequency soupFrequency)
         {
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(soupFrequency);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(soupFrequency);
-                await _context.SaveChangesAsync();
+                var checkExit = _context.SoupFrequency.Where(x => x.SoupCount == soupFrequency.SoupCount).Count();
+
+                if (checkExit == 0)
+                {
+                    _context.Add(soupFrequency);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+                    return RedirectToAction(nameof(Index));
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
                 return RedirectToAction(nameof(Index));
+
+
             }
             return View(soupFrequency);
         }
@@ -88,31 +109,26 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,SoupCount")] SoupFrequency soupFrequency)
         {
-            if (id != soupFrequency.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(soupFrequency);
             }
 
-            if (ModelState.IsValid)
+            var CheckExist = _context.SoupFrequency.Where(x => x.Id != soupFrequency.Id && x.SoupCount == soupFrequency.SoupCount).Count();
+
+            if (CheckExist == 0)
             {
-                try
-                {
-                    _context.Update(soupFrequency);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SoupFrequencyExists(soupFrequency.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var model = _context.SoupFrequency.FirstOrDefault(x => x.Id == soupFrequency.Id);
+                model.SoupCount = soupFrequency.SoupCount;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
+            _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
             return View(soupFrequency);
         }
 

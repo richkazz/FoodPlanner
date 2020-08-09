@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.Swallows;
 using Identity.Models;
+using NToastNotify;
+using FoodPlanner.Util;
 
 namespace FoodPlanner.Controllers
 {
     public class SwallowsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public SwallowsController(AppIdentityDbContext context)
+        public SwallowsController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
 
@@ -56,11 +60,28 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Swallow swallow)
         {
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(swallow);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(swallow);
-                await _context.SaveChangesAsync();
+                var checkExit = _context.Swallow.Where(x => x.Name.ToLower() == swallow.Name.ToLower()).Count();
+
+                if (checkExit == 0)
+                {
+                    _context.Add(swallow);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+                    return RedirectToAction(nameof(Index));
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
                 return RedirectToAction(nameof(Index));
+
+
             }
             return View(swallow);
         }
@@ -88,31 +109,26 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Swallow swallow)
         {
-            if (id != swallow.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(swallow);
             }
 
-            if (ModelState.IsValid)
+            var CheckExist = _context.Swallow.Where(x => x.Id != swallow.Id && x.Name.ToLower() == swallow.Name.ToLower()).Count();
+
+            if (CheckExist == 0)
             {
-                try
-                {
-                    _context.Update(swallow);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SwallowExists(swallow.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var model = _context.Swallow.FirstOrDefault(x => x.Id == swallow.Id);
+                model.Name = swallow.Name;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
+            _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
             return View(swallow);
         }
 

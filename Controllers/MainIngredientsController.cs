@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.MainIngredients;
 using Identity.Models;
+using FoodPlanner.Util;
+using NToastNotify;
 
 namespace FoodPlanner.Controllers
 {
     public class MainIngredientsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public MainIngredientsController(AppIdentityDbContext context)
+        public MainIngredientsController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
 
@@ -56,11 +60,28 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,ClassOfFood")] MainIngredient mainIngredient)
         {
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(mainIngredient);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(mainIngredient);
-                await _context.SaveChangesAsync();
+                var checkExit = _context.MainIngredient.Where(x => x.Name.ToLower() == mainIngredient.Name.ToLower()).Count();
+
+                if (checkExit == 0)
+                {
+                    _context.Add(mainIngredient);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+                    return RedirectToAction(nameof(Index));
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
                 return RedirectToAction(nameof(Index));
+
+
             }
             return View(mainIngredient);
         }
@@ -88,31 +109,27 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ClassOfFood")] MainIngredient mainIngredient)
         {
-            if (id != mainIngredient.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(mainIngredient);
             }
 
-            if (ModelState.IsValid)
+            var CheckExist = _context.MainIngredient.Where(x => x.Id != mainIngredient.Id && x.Name.ToLower() == mainIngredient.Name.ToLower()).Count();
+
+            if (CheckExist == 0)
             {
-                try
-                {
-                    _context.Update(mainIngredient);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MainIngredientExists(mainIngredient.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var model = _context.MainIngredient.FirstOrDefault(x => x.Id == mainIngredient.Id);
+                model.Name = mainIngredient.Name;
+                model.ClassOfFood = mainIngredient.ClassOfFood;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
+            _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
             return View(mainIngredient);
         }
 

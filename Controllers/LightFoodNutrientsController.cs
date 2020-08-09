@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.LightFood;
 using Identity.Models;
+using FoodPlanner.Util;
+using NToastNotify;
 
 namespace FoodPlanner.Controllers
 {
     public class LightFoodNutrientsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public LightFoodNutrientsController(AppIdentityDbContext context)
+        public LightFoodNutrientsController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
 
@@ -94,14 +98,32 @@ namespace FoodPlanner.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,LightFoodName,LightFoodMainIngredient")] LightFoodNutrient lightFoodNutrient, int lightfoodmain, int lightfoodas)
+        public async Task<IActionResult> Create([Bind("Id,LightFoodName,LightFoodMainIngredient")]
+        LightFoodNutrient lightFoodNutrient, int lightfoodmain, int lightfoodas)
         {
-            lightFoodNutrient.LightFoodName = lightfoodas;
-            lightFoodNutrient.LightFoodMainIngredient = lightfoodmain;
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(lightfoodmain);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(lightFoodNutrient);
-                await _context.SaveChangesAsync();
+                var checkExist = _context.LightFoodNutrient.Where(x => x.LightFoodName == lightfoodas).Where(x => x.LightFoodMainIngredient != 0).Count();
+                if (checkExist == 0)
+                {
+                    lightFoodNutrient.LightFoodName = lightfoodas;
+                    lightFoodNutrient.LightFoodMainIngredient = lightfoodmain;
+                    _context.Add(lightFoodNutrient);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+
+                    return RedirectToAction(nameof(Index));
+
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
+
                 return RedirectToAction(nameof(Index));
             }
             return View(lightFoodNutrient);
@@ -133,34 +155,32 @@ namespace FoodPlanner.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,LightFoodName,LightFoodMainIngredient")] LightFoodNutrient lightFoodNutrient, int lightfoodmain, int lightfoodas)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,LightFoodName,LightFoodMainIngredient")]
+        LightFoodNutrient lightFoodNutrient, int lightfoodmain, int lightfoodas)
         {
-            lightFoodNutrient.LightFoodName = lightfoodas;
-            lightFoodNutrient.LightFoodMainIngredient = lightfoodmain;
-
-            if (id != lightFoodNutrient.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
 
+                return View(lightfoodmain);
+            }
             if (ModelState.IsValid)
             {
-                try
+                var checkCount = _context.LightFoodNutrient.Where(x => x.Id == id).Where(x => x.LightFoodName == lightfoodas
+                && x.LightFoodMainIngredient != 0).Count();
+                if (checkCount == 0)
                 {
-                    _context.Update(lightFoodNutrient);
-                    await _context.SaveChangesAsync();
+                    _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LightFoodNutrientExists(lightFoodNutrient.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                var model = _context.LightFoodNutrient.FirstOrDefault(x => x.Id == id);
+                model.LightFoodName = lightfoodas;
+                model.LightFoodMainIngredient = lightfoodmain;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
             return View(lightFoodNutrient);
@@ -222,6 +242,8 @@ namespace FoodPlanner.Controllers
             var lightFoodNutrient = await _context.LightFoodNutrient.FindAsync(id);
             _context.LightFoodNutrient.Remove(lightFoodNutrient);
             await _context.SaveChangesAsync();
+            _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.DELETED_SUCESSFUL);
+
             return RedirectToAction(nameof(Index));
         }
 

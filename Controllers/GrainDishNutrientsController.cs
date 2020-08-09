@@ -7,18 +7,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.GrainDishNutrients;
 using Identity.Models;
+using FoodPlanner.Util;
+using NToastNotify;
 
 namespace FoodPlanner.Controllers
 {
     public class GrainDishNutrientsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public GrainDishNutrientsController(AppIdentityDbContext context)
+        public GrainDishNutrientsController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
-
         // GET: GrainDishNutrients
         public async Task<IActionResult> Index()
         {
@@ -97,16 +100,32 @@ namespace FoodPlanner.Controllers
         public async Task<IActionResult> Create([Bind("Id,GrainName,SoupRequired,KaroMainIngredientsId")]
         GrainDishNutrient grainDishNutrient, int karoingredient, int grainselect, bool soupRequired)
         {
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
 
-            grainDishNutrient.SoupRequired = soupRequired;
-            grainDishNutrient.GrainName = grainselect;
-            grainDishNutrient.KaroMainIngredientsId = karoingredient;
+                return View(karoingredient);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(grainDishNutrient);
-                await _context.SaveChangesAsync();
+                var checkExist = _context.GrainDishNutrient.Where(x => x.GrainName == grainselect).Where(x => x.KaroMainIngredientsId != 0).Count();
+                if (checkExist == 0)
+                {
+                    grainDishNutrient.GrainName = grainselect;
+                    grainDishNutrient.KaroMainIngredientsId = karoingredient;
+                    _context.Add(grainDishNutrient);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+
+                    return RedirectToAction(nameof(Index));
+
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(grainDishNutrient);
         }
 
@@ -139,32 +158,29 @@ namespace FoodPlanner.Controllers
         public async Task<IActionResult> Edit(long id, [Bind("Id,GrainName,SoupRequired,KaroMainIngredientsId")] GrainDishNutrient grainDishNutrient,
             int karoingredient, int grainselect, bool soupRequired)
         {
-            grainDishNutrient.SoupRequired = soupRequired;
-            grainDishNutrient.GrainName = grainselect;
-            grainDishNutrient.KaroMainIngredientsId = karoingredient;
-            if (id != grainDishNutrient.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
 
+                return View(karoingredient);
+            }
             if (ModelState.IsValid)
             {
-                try
+                var checkCount = _context.GrainDishNutrient.Where(x => x.Id == id).Where(x => x.GrainName == grainselect
+                && x.KaroMainIngredientsId != 0).Count();
+                if (checkCount == 0)
                 {
-                    _context.Update(grainDishNutrient);
-                    await _context.SaveChangesAsync();
+                    _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GrainDishNutrientExists(grainDishNutrient.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                var model = _context.GrainDishNutrient.FirstOrDefault(x => x.Id == id);
+                model.GrainName = grainselect;
+                model.KaroMainIngredientsId = karoingredient;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
             return View(grainDishNutrient);
@@ -228,6 +244,8 @@ namespace FoodPlanner.Controllers
             var grainDishNutrient = await _context.GrainDishNutrient.FindAsync(id);
             _context.GrainDishNutrient.Remove(grainDishNutrient);
             await _context.SaveChangesAsync();
+            _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.DELETED_SUCESSFUL);
+
             return RedirectToAction(nameof(Index));
         }
 

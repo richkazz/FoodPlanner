@@ -62,7 +62,7 @@ namespace Identity
             services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
             {
                 ProgressBar = false,
-                PositionClass = ToastPositions.TopCenter
+                PositionClass = ToastPositions.TopFullWidth
             });
 
             services.Configure<IdentityOptions>(opts =>

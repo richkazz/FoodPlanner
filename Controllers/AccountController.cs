@@ -12,6 +12,7 @@ using FoodPlanner.Email;
 using FoodPlanner.Interfaces;
 using System.Linq;
 using NToastNotify;
+using FoodPlanner.Util;
 
 namespace Identity.Controllers
 {
@@ -108,9 +109,9 @@ namespace Identity.Controllers
                     }*/
 
                     if (result1.IsLockedOut)
-                        _toastNotification.AddErrorToastMessage("Your account is locked out. Kindly wait for 10 minutes and try again");
-                    if (result1.Succeeded==false){
-                        _toastNotification.AddErrorToastMessage("Login Failed: Invalid Email or password");
+                        _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ACCOUNT_LOCKED_OUT);
+                    if (!result1.Succeeded){
+                        _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.INVALID_LOGIN);
                         return View();
                     }
                     if (result1.RequiresTwoFactor)
@@ -118,7 +119,7 @@ namespace Identity.Controllers
                         return RedirectToAction("LoginTwoStep", new { appUser.Email, login.ReturnUrl });
                     }
                 }
-                _toastNotification.AddErrorToastMessage("Login Failed: Invalid Email or password");
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.INVALID_LOGIN);
                 return View();
                 //ModelState.AddModelError(nameof(login.Email), "Login Failed: Invalid Email or password");
             }
@@ -154,7 +155,8 @@ namespace Identity.Controllers
             }
             else
             {
-                ModelState.AddModelError("", "Invalid Login Attempt");
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.Invalid_Login_Attempt);
+             
                 return View();
             }
         }
@@ -231,7 +233,11 @@ namespace Identity.Controllers
 
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
-                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            {
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.INVALID_EMAIL);
+                return View();
+            }
+               
 
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var link = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme);
@@ -243,8 +249,12 @@ namespace Identity.Controllers
             _emailSender.SendEmail(msg);
             //bool emailResponse = emailHelper.SendEmail(msg);
 
-            if (ModelState.IsValid)
-                return RedirectToAction("ForgotPasswordConfirmation");
+            if (ModelState.IsValid) { 
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.FORGOT_PASSWORD_CONFIRMTION);
+                return View();
+                //return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
             else
             {
                 // log email failed 
@@ -274,7 +284,7 @@ namespace Identity.Controllers
 
             var user = await userManager.FindByEmailAsync(resetPassword.Email);
             if (user == null)
-                RedirectToAction("ResetPasswordConfirmation");
+                RedirectToAction(nameof(ResetPasswordConfirmation));
 
             var resetPassResult = await userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.Password);
             if (!resetPassResult.Succeeded)
@@ -284,7 +294,7 @@ namespace Identity.Controllers
                 return View();
             }
 
-            return RedirectToAction("ResetPasswordConfirmation");
+            return RedirectToAction(nameof(ResetPasswordConfirmation));
         }
 
         [AllowAnonymous]

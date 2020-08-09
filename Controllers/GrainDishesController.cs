@@ -7,15 +7,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.GrainDishes;
 using Identity.Models;
+using Org.BouncyCastle.Math.EC.Rfc7748;
+using NToastNotify;
+using FoodPlanner.Util;
 
 namespace FoodPlanner.Controllers
 {
     public class GrainDishesController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public GrainDishesController(AppIdentityDbContext context)
+        public GrainDishesController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
 
@@ -56,12 +61,26 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] GrainDish grainDish)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(grainDish);
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(grainDish);
+            }
+
+            var CheckExist = _context.GrainDish.Where(x => x.Id != grainDish.Id && x.Name.ToLower() == grainDish.Name.ToLower()).Count();
+
+            if (CheckExist == 0)
+            {
+                var model = _context.Soup.FirstOrDefault(x => x.Id == grainDish.Id);
+                model.Name = grainDish.Name;
                 await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
+            _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
             return View(grainDish);
         }
 
@@ -88,31 +107,26 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] GrainDish grainDish)
         {
-            if (id != grainDish.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(grainDish);
             }
 
-            if (ModelState.IsValid)
+            var CheckExist = _context.GrainDish.Where(x => x.Id != grainDish.Id && x.Name.ToLower() == grainDish.Name.ToLower()).Count();
+
+            if (CheckExist == 0)
             {
-                try
-                {
-                    _context.Update(grainDish);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GrainDishExists(grainDish.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var model = _context.GrainDish.FirstOrDefault(x => x.Id == grainDish.Id);
+                model.Name = grainDish.Name;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
                 return RedirectToAction(nameof(Index));
             }
+            _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
             return View(grainDish);
         }
 

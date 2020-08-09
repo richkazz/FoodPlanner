@@ -7,18 +7,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FoodPlanner.Models.Swallows;
 using Identity.Models;
+using FoodPlanner.Util;
+using NToastNotify;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace FoodPlanner.Controllers
 {
     public class SwallowNutrientsController : Controller
     {
         private readonly AppIdentityDbContext _context;
+        private readonly IToastNotification _toastNotification;
 
-        public SwallowNutrientsController(AppIdentityDbContext context)
+        public SwallowNutrientsController(AppIdentityDbContext context, IToastNotification toastNotification)
         {
+            _toastNotification = toastNotification;
             _context = context;
         }
-
         // GET: SwallowNutrients
         public async Task<IActionResult> Index()
         {
@@ -98,14 +102,32 @@ namespace FoodPlanner.Controllers
         public async Task<IActionResult> Create([Bind("Id,SwallowName,MainIngredientsId")] SwallowNutrient swallowNutrient
             , int ingswallowings, int ingredient)
         {
-            swallowNutrient.SwallowName = ingswallowings;
-            swallowNutrient.MainIngredientsId = ingredient;
+            if (!ModelState.IsValid)
+            {
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
+
+                return View(swallowNutrient);
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(swallowNutrient);
-                await _context.SaveChangesAsync();
+                var checkExist = _context.SwallowNutrient.Where(x => x.SwallowName == ingswallowings).Where(x=>x.MainIngredientsId!=0).Count();
+                if (checkExist == 0)
+                {
+                    swallowNutrient.SwallowName = ingswallowings;
+                    swallowNutrient.MainIngredientsId = ingredient;
+                    _context.Add(swallowNutrient);
+                    await _context.SaveChangesAsync();
+                    _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+
+                    return RedirectToAction(nameof(Index));
+
+                }
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
+
                 return RedirectToAction(nameof(Index));
             }
+           
             return View(swallowNutrient);
         }
 
@@ -136,33 +158,32 @@ namespace FoodPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,SwallowName,MainIngredientsId")] SwallowNutrient swallowNutrient, int ingswallowings, int ingredient)
         {
-            swallowNutrient.SwallowName = ingswallowings;
-            swallowNutrient.MainIngredientsId = ingredient;
-            if (id != swallowNutrient.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                _toastNotification.AddErrorToastMessage(msg);
 
+                return View(swallowNutrient);
+            }
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(swallowNutrient);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SwallowNutrientExists(swallowNutrient.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+            var checkCount = _context.SwallowNutrient.Where(x => x.Id == id).Where(x => x.SwallowName == ingswallowings
+            && x.MainIngredientsId != 0).Count();
+            if (checkCount==0)
+            {
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
                 return RedirectToAction(nameof(Index));
             }
+            
+             var model = _context.SwallowNutrient.FirstOrDefault(x => x.Id == id);
+                model.SwallowName = ingswallowings;
+                model.MainIngredientsId = ingredient;
+                await _context.SaveChangesAsync();
+                _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.UPDATE_SUCESSFUL);
+
+                return RedirectToAction(nameof(Index));
+            }
+            
             return View(swallowNutrient);
         }
 
@@ -225,6 +246,8 @@ namespace FoodPlanner.Controllers
             var swallowNutrient = await _context.SwallowNutrient.FindAsync(id);
             _context.SwallowNutrient.Remove(swallowNutrient);
             await _context.SaveChangesAsync();
+            _toastNotification.AddSuccessToastMessage(ResponseMessageUtilities.DELETED_SUCESSFUL);
+
             return RedirectToAction(nameof(Index));
         }
 
