@@ -144,12 +144,13 @@
                             contentType: false,
                             processData: false,
                         }).fail(function () {
-                                Swal.fire(
-                                    'Error occured!',
-                                    'Unknown error occured while processing request',
-                                    data.message,
-                                    'warning'
-                                ).then(function () {
+                                ///*Swal.fire(
+                                   // 'Error occured!',
+                                   // 'Unknown error occured while processing request',
+                                   // data.message,
+                                    //'warning'
+                                //).* /
+                 then(function () {
                                     location.replace("@Url.Action("Index","UserGrainDishSelections")");
                                 });
                             })
@@ -163,11 +164,14 @@
                             location.replace("@Url.Action("Index","UserGrainDishSelections")");
                         });
                     } else {
-                        Swal.fire(
-                            'Grain Dish added successfully!',
-                            data.message,
-                            'success'
-                        ).then(function () {
+                        //Swal.fire(
+                            
+                        //    errorMessage,
+                        //    data.message,
+                        //    'success'
+                        //).
+                        //then
+                            (function () {
                             location.replace("@Url.Action("Index","UserGrainDishSelections")");
                         });
                     }
@@ -184,11 +188,11 @@
 
                   $("#con-close-modal .modal-content").load("@Url.Action("Edit","UserGrainDishSelections")/" + Id, function (str, status, req) {
                         req.fail(function () {
-                            Swal.fire(
-                                'Error occured!',
-                                'Error occured while loading edit Grain Dish page',
-                                'error'
-                            );
+                            //Swal.fire(
+                            //    'Error occured!',
+                            //    'Error occured while loading edit Grain Dish page',
+                            //    'error'
+                            //);
                         });
 
                         req.done(function () {
@@ -225,12 +229,13 @@
                         contentType: false,
                         processData: false,
                     }).fail(function () {
-                            Swal.fire(
-                                'Error occured!',
-                                'Unknown error occured while processing request',
+                            //Swal.fire(
+                            //    'Error occured!',
+                            //    'Unknown error occured while processing request',
 
-                                'warning'
-                            ).then(function () {
+                            //    'warning'
+                            //).
+                                then(function () {
                                 location.replace("@Url.Action("Index","UserGrainDishSelections")");
                             });
                     }).done(function (data) {

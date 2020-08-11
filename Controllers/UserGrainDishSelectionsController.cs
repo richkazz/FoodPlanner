@@ -10,6 +10,10 @@ using Identity.Models;
 using FoodPlanner.Interface;
 using Microsoft.AspNetCore.Identity;
 using FoodPlanner.Interfaces;
+using Org.BouncyCastle.Math.EC.Rfc7748;
+using Identity.Migrations;
+using NToastNotify;
+using FoodPlanner.Util;
 
 namespace FoodPlanner.Controllers
 {
@@ -19,17 +23,17 @@ namespace FoodPlanner.Controllers
         private ISchedule _scheduleManager;
         private IOperation _scheduleoperation;
         private ISoupFrequency _soupfrequencymanager;
-
+        private readonly IToastNotification _toastNotification;
         private UserManager<AppUser> _userManager;
         private RoleManager<IdentityRole> roleManager;
         private SignInManager<AppUser> signInManager;
 
-        public UserGrainDishSelectionsController(AppIdentityDbContext context, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
+        public UserGrainDishSelectionsController(AppIdentityDbContext context, IToastNotification toastNotification, ISoupFrequency soupfrequencymanager, RoleManager<IdentityRole> roleMgr, ISchedule scheduleManager, IOperation scheduleoperation, UserManager<AppUser> userManager, SignInManager<AppUser> signinMgr)
         {
             _context = context;
             _scheduleManager = scheduleManager;
             _soupfrequencymanager = soupfrequencymanager;
-
+            _toastNotification = toastNotification;
             _scheduleoperation = scheduleoperation;
             _userManager = userManager;
             roleManager = roleMgr;
@@ -100,30 +104,31 @@ namespace FoodPlanner.Controllers
         //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserId,UserGrainDishId")] UserGrainDishSelection userGrainDishesSelection, int grainselect)
         {
-            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
-
-            userGrainDishesSelection.UserId = user.Id;
-            //userGrainDishesSelection.UserGrainDishesId = grainselect;
-            if (userGrainDishesSelection.Id>=0&userGrainDishesSelection.UserId!=null&userGrainDishesSelection.UserGrainDishId!=0)
+            if (!ModelState.IsValid)
             {
-                var item = await _context.UserGrainDishSelection.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(x => x.UserGrainDishId == userGrainDishesSelection.UserGrainDishId);
-                if (item == null)
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                return new JsonResult(new { status = 0, message = msg });
+            }
+            
+                AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+                var checkfood = _context.UserGrainDishSelection.Where(x => x.UserId == user.Id && x.UserGrainDishId == userGrainDishesSelection.UserGrainDishId).ToList().Count();
+                if (checkfood == 0)
                 {
+                userGrainDishesSelection.UserId = user.Id;
                     _context.Add(userGrainDishesSelection);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.CREATED_SUCESSFUL);
+                return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    // ModelState.AddModelError("", "GrainDishes alreay exist");
-                    var errorMessage = "GrainDishes alreay exist";
+                _toastNotification.AddErrorToastMessage(ResponseMessageUtilities.ITEM_EXIST);
+                var errorMessage = "GrainDishes alreay exist";
                     //return RedirectToAction(nameof(Create));
                     return RedirectToAction("Index", new { message = errorMessage });
                 }
 
-
-            }
-            return View(userGrainDishesSelection);
         }
 
         // GET: UserGrainDishSelections/Edit/5
@@ -152,36 +157,29 @@ namespace FoodPlanner.Controllers
         [HttpPost]
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,UserGrainDishesId")] UserGrainDishSelection userGrainDishesSelection, int grainselect)
-        public async Task<JsonResult> Edit(int id, [Bind("Id,UserId,UserGrainDishId")] UserGrainDishSelection userGrainDishesSelection, int grainselect)
+        public async Task<JsonResult> Edit(int id, [Bind("Id,UserId,UserGrainDishId")]
+        UserGrainDishSelection userGrainDishesSelection, int grainselect)
         {
-            AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var checkExist = await _context.UserGrainDishSelection.Where(x => x.UserId == user.Id).Select(x => x.UserGrainDishId).ToListAsync();
-            List<int> checkEqual = new List<int>();
-            var checkIs =await _context.UserGrainDishSelection.Where(x => x.UserId == user.Id).Where(x => x.Id == id).Select(x => x.UserGrainDishId).ToListAsync();
-            foreach(var item in checkExist)
+            if (!ModelState.IsValid)
             {
-                if(item == checkIs[0])
-                {
-                    checkEqual.Add(id);
-                }
+                string msg = (ModelState.FirstOrDefault(x => x.Value.Errors.Any()).Value.Errors.FirstOrDefault().ErrorMessage).Replace("'", "");
+                return new JsonResult(new { status = 0, message = msg });
             }
-            // userGrainDishesSelection.UserId = 1;
-            //userGrainDishesSelection.UserGrainDishesId = grainselect;
-            if (checkExist.Contains(id) == true&checkEqual[0]==0)
-            {
-                return new JsonResult(new { status = 0, message = "Item wasn't found" });
-                //return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
+                AppUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+                    var checkfoods = _context.UserGrainDishSelection.Where(x => x.Id != id && x.UserId == user.Id && x.UserGrainDishId == userGrainDishesSelection.UserGrainDishId).ToList().Count();
+            
                 try
                 {
-                    var item = await _context.UserGrainDishSelection.FirstOrDefaultAsync(x => x.UserGrainDishId == userGrainDishesSelection.UserGrainDishId && x.Id != userGrainDishesSelection.Id);
-                    if (!checkExist.Contains(userGrainDishesSelection.UserGrainDishId))
+                    //if (checkid==0||checkfood==0)
+                    if (checkfoods == 0)
                     {
-                        _context.Update(userGrainDishesSelection);
+                        var model = _context.UserGrainDishSelection.FirstOrDefault(x => x.Id == userGrainDishesSelection.Id);
+                        model.UserGrainDishId = userGrainDishesSelection.UserGrainDishId;
                         await _context.SaveChangesAsync();
+                        //_context.Update(userGrainDishesSelection);
+                        //await _context.SaveChangesAsync();
                         return new JsonResult(new { status = 1, message = "Your request was processed successfully" });
                     }
                     else
